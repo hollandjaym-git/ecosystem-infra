@@ -11,11 +11,12 @@
 	tls /etc/caddy/certs/origin.pem /etc/caddy/certs/origin.key
 	encode gzip
 
-	@app      host app.alpinepost.app app.sfoptionsdesk.com
+	@app      host options.alpinepost.app app.sfoptionsdesk.com
 	@fitness  host fitness.alpinepost.app
 	@peptides host peptides.alpinepost.app
+	@gktw     host gktw.alpinepost.app
 
-	# ---- options-journal (app.alpinepost.app, + legacy domain during transition) ----
+	# ---- options-journal (options.alpinepost.app, + legacy domain during transition) ----
 	handle @app {
 		header {
 			Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
@@ -60,8 +61,21 @@
 		reverse_proxy peptides-web:80
 	}
 
-	# ---- apex -> app ----
+	# ---- GKTW (gktw.alpinepost.app) — RESERVED, needs extraction (plan item #3) ----
+	# GKTW currently lives as the /gktw PATH inside options-journal (its own
+	# gktw.html entry + /assets/gktw-*.js + backend/gktw.js routes). Serving it at
+	# this subdomain's ROOT cleanly requires extracting it so its shell + assets
+	# live at "/", because a blanket rewrite to /gktw would also rewrite the asset
+	# URLs and break them. Until that extraction lands, this subdomain 302s to the
+	# existing path so the DNS/cert are exercised and the link works — but the PWA
+	# still installs under the options origin, NOT its own space. Replace with a
+	# real reverse_proxy to a dedicated gktw frontend once extracted.
+	handle @gktw {
+		redir https://options.alpinepost.app/gktw{uri}
+	}
+
+	# ---- apex -> options ----
 	handle {
-		redir https://app.alpinepost.app{uri}
+		redir https://options.alpinepost.app{uri}
 	}
 }
