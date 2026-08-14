@@ -1,5 +1,4 @@
-# Cloudflare Origin cert + key (never commit)
-front-caddy/caddy/
+# Cloudflare Origin cert + key (never commit the secrets, but keep the folder)
 *.pem
 *.key
 
