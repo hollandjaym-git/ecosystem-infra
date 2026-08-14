@@ -1,0 +1,12 @@
+# Cloudflare Origin cert + key (never commit)
+front-caddy/caddy/
+*.pem
+*.key
+
+# Secrets
+.env
+*.env
+!.env.example
+
+# OS
+.DS_Store

@@ -1,0 +1,38 @@
+# pg-shared — one Postgres server hosting an isolated database per app.
+# Replaces the three separate per-app Postgres containers in production.
+#
+# Sits on the `data` network only — reachable by app backends, NOT by the
+# front Caddy or the frontends (routing plane is a separate `edge` network).
+#
+# Local: also publishes 5433 for inspection.
+# Droplet: DROP the `ports:` mapping, and set PGSHARED_SUPER_PASSWORD + real
+# per-role passwords from secrets.
+services:
+  pg-shared:
+    image: postgres:16-alpine
+    container_name: pg-shared
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: ${PGSHARED_SUPER_PASSWORD:-super_local}
+      POSTGRES_DB: postgres
+    volumes:
+      - pgshared_data:/var/lib/postgresql/data
+      # init/*.sql runs ONCE, only on an empty data volume (first init).
+      - ./init:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "5433:5432"   # LOCAL inspection only — remove on the droplet
+    networks:
+      - data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+networks:
+  # Shared, pre-created once with: docker network create edge && docker network create data
+  data:
+    external: true
+
+volumes:
+  pgshared_data:

@@ -1,0 +1,67 @@
+# Shared front reverse-proxy for the whole alpinepost.app ecosystem.
+# Owns 80/443, terminates TLS with one wildcard Cloudflare Origin cert, and
+# routes each subdomain to that app's frontend nginx (by its unique `edge`
+# alias). Each app's nginx already serves its SPA and proxies /api -> its
+# backend, so this layer only does host-based routing + shared security headers.
+#
+# Certs: Cloudflare -> SSL/TLS -> Origin Server -> save origin.pem + origin.key
+# into ./caddy/ (gitignored). SSL mode: Full (Strict).
+
+*.alpinepost.app, alpinepost.app {
+	tls /etc/caddy/certs/origin.pem /etc/caddy/certs/origin.key
+	encode gzip
+
+	@app      host app.alpinepost.app app.sfoptionsdesk.com
+	@fitness  host fitness.alpinepost.app
+	@peptides host peptides.alpinepost.app
+
+	# ---- options-journal (app.alpinepost.app, + legacy domain during transition) ----
+	handle @app {
+		header {
+			Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+			X-Content-Type-Options "nosniff"
+			Referrer-Policy "strict-origin-when-cross-origin"
+			Cross-Origin-Opener-Policy "same-origin"
+			Permissions-Policy "camera=(), microphone=(), geolocation=()"
+			Content-Security-Policy "default-src 'self'; script-src 'self' https://s3.tradingview.com https://*.tradingview.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.tradingview.com; connect-src 'self' https://*.tradingview.com wss://*.tradingview.com https://api.schwabapi.com; frame-src https://*.tradingview.com; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+			-Server
+		}
+		# SSE streaming endpoint — no buffering. NOTE: it now flows front-caddy ->
+		# oj-web (nginx) -> backend, so nginx must ALSO disable proxy_buffering for
+		# /api/ai-suggestions (follow-up in options-journal/nginx.conf).
+		reverse_proxy /api/ai-suggestions oj-web:80 {
+			flush_interval -1
+		}
+		reverse_proxy oj-web:80
+	}
+
+	# ---- fitness-tracker ----
+	handle @fitness {
+		header {
+			Strict-Transport-Security "max-age=31536000; includeSubDomains"
+			X-Content-Type-Options "nosniff"
+			Referrer-Policy "strict-origin-when-cross-origin"
+			-Server
+		}
+		reverse_proxy fitness-web:80
+	}
+
+	# ---- peptides (self-contained; strict CSP from its own Caddyfile) ----
+	handle @peptides {
+		header {
+			Strict-Transport-Security "max-age=31536000; includeSubDomains"
+			X-Content-Type-Options "nosniff"
+			Referrer-Policy "strict-origin-when-cross-origin"
+			Cross-Origin-Opener-Policy "same-origin"
+			Permissions-Policy "camera=(), microphone=(), geolocation=()"
+			Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; manifest-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+			-Server
+		}
+		reverse_proxy peptides-web:80
+	}
+
+	# ---- apex -> app ----
+	handle {
+		redir https://app.alpinepost.app{uri}
+	}
+}

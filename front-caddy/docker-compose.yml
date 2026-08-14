@@ -1,0 +1,27 @@
+# front-caddy — the single ecosystem entrypoint. Owns 80/443 on the droplet and
+# routes each alpinepost.app subdomain to that app's frontend over `edge`.
+# Only this stack binds the host's 80/443; the app stacks drop their own Caddy.
+services:
+  front-caddy:
+    image: caddy:2-alpine
+    container_name: front-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./caddy:/etc/caddy/certs:ro   # origin.pem + origin.key (gitignored)
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - edge
+
+networks:
+  # Shared, pre-created: docker network create edge && docker network create data
+  edge:
+    external: true
+
+volumes:
+  caddy_data:
+  caddy_config:
