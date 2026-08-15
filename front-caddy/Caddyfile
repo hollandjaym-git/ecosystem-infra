@@ -54,8 +54,15 @@
 			X-Content-Type-Options "nosniff"
 			Referrer-Policy "strict-origin-when-cross-origin"
 			Cross-Origin-Opener-Policy "same-origin"
-			Permissions-Policy "camera=(), microphone=(), geolocation=()"
-			Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; manifest-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+			# camera=(self): copied from options-journal's block (which has no
+			# camera use) without adjusting for peptides' actual barcode scanner —
+			# was blocking camera use entirely on any browser that enforces it.
+			Permissions-Policy "camera=(self), microphone=(), geolocation=()"
+			# 'wasm-unsafe-eval': WebKit (Safari/iOS) enforces CSP on WebAssembly
+			# compilation — without this, the barcode scanner's WASM decoder
+			# (zxing) fails every call there, surfacing as a generic
+			# "NotSupportedError" with no indication it's a CSP block.
+			Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; manifest-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
 			-Server
 		}
 		reverse_proxy peptides-web:80
