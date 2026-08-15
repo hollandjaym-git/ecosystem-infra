@@ -11,7 +11,7 @@
 	tls /etc/caddy/certs/origin.pem /etc/caddy/certs/origin.key
 	encode gzip
 
-	@app      host options.alpinepost.app app.sfoptionsdesk.com
+	@app      host options.alpinepost.app
 	@fitness  host fitness.alpinepost.app
 	@peptides host peptides.alpinepost.app
 	@gktw     host gktw.alpinepost.app
@@ -78,4 +78,25 @@
 	handle {
 		redir https://options.alpinepost.app{uri}
 	}
+}
+
+# ---- legacy domain (dual-domain transition) — same options-journal app, served
+# with the OLD sfoptionsdesk origin cert so existing users/PWAs keep working
+# until the domain is retired. Then delete this block + the sfoptionsdesk.* cert.
+app.sfoptionsdesk.com {
+	tls /etc/caddy/certs/sfoptionsdesk.pem /etc/caddy/certs/sfoptionsdesk.key
+	encode gzip
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Cross-Origin-Opener-Policy "same-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		Content-Security-Policy "default-src 'self'; script-src 'self' https://s3.tradingview.com https://*.tradingview.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.tradingview.com; connect-src 'self' https://*.tradingview.com wss://*.tradingview.com https://api.schwabapi.com; frame-src https://*.tradingview.com; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+		-Server
+	}
+	reverse_proxy /api/ai-suggestions oj-web:80 {
+		flush_interval -1
+	}
+	reverse_proxy oj-web:80
 }
