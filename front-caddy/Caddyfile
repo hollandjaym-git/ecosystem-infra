@@ -68,17 +68,21 @@
 		reverse_proxy peptides-web:80
 	}
 
-	# ---- GKTW (gktw.alpinepost.app) — RESERVED, needs extraction (plan item #3) ----
-	# GKTW currently lives as the /gktw PATH inside options-journal (its own
-	# gktw.html entry + /assets/gktw-*.js + backend/gktw.js routes). Serving it at
-	# this subdomain's ROOT cleanly requires extracting it so its shell + assets
-	# live at "/", because a blanket rewrite to /gktw would also rewrite the asset
-	# URLs and break them. Until that extraction lands, this subdomain 302s to the
-	# existing path so the DNS/cert are exercised and the link works — but the PWA
-	# still installs under the options origin, NOT its own space. Replace with a
-	# real reverse_proxy to a dedicated gktw frontend once extracted.
+	# ---- GKTW (gktw.alpinepost.app) — standalone app (repo: gktw) ----
+	# Extracted out of the options-journal /gktw path into its own app whose shell
+	# + assets live at "/". Its nginx serves the SPA and proxies /api -> its
+	# backend, so this layer only host-routes + adds shared headers.
 	handle @gktw {
-		redir https://options.alpinepost.app/gktw{uri}
+		header {
+			Strict-Transport-Security "max-age=31536000; includeSubDomains"
+			X-Content-Type-Options "nosniff"
+			Referrer-Policy "strict-origin-when-cross-origin"
+			Cross-Origin-Opener-Policy "same-origin"
+			Permissions-Policy "camera=(), microphone=(), geolocation=()"
+			Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self'; manifest-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+			-Server
+		}
+		reverse_proxy gktw-web:80
 	}
 
 	# ---- apex -> options ----

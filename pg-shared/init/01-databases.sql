@@ -23,3 +23,9 @@ CREATE ROLE peptides LOGIN PASSWORD 'peptides_local';
 CREATE DATABASE peptides OWNER peptides;
 REVOKE CONNECT ON DATABASE peptides FROM PUBLIC;
 GRANT  CONNECT ON DATABASE peptides TO peptides;
+
+-- gktw ----------------------------------------------------------------------
+CREATE ROLE gktw LOGIN PASSWORD 'gktw_local';
+CREATE DATABASE gktw OWNER gktw;
+REVOKE CONNECT ON DATABASE gktw FROM PUBLIC;
+GRANT  CONNECT ON DATABASE gktw TO gktw;
