@@ -15,6 +15,7 @@
 	@fitness  host fitness.alpinepost.app
 	@peptides host peptides.alpinepost.app
 	@gktw     host gktw.alpinepost.app
+	@kitchen  host kitchen.alpinepost.app
 
 	# ---- options-journal (options.alpinepost.app, + legacy domain during transition) ----
 	handle @app {
@@ -83,6 +84,29 @@
 			-Server
 		}
 		reverse_proxy gktw-web:80
+	}
+
+	# ---- kitchen (kitchen.alpinepost.app) — Kitchen Planner (repo: kitchen) ----
+	# Its nginx serves the SPA and proxies /api -> its backend, so this layer only
+	# host-routes + adds shared headers. When AI/photo features land, relax the CSP
+	# (img-src blob/data, connect-src for streaming) and add a flush_interval -1
+	# reverse_proxy for the SSE endpoint (see the options block above).
+	handle @kitchen {
+		header {
+			Strict-Transport-Security "max-age=31536000; includeSubDomains"
+			X-Content-Type-Options "nosniff"
+			Referrer-Policy "strict-origin-when-cross-origin"
+			Cross-Origin-Opener-Policy "same-origin"
+			Permissions-Policy "camera=(), microphone=(), geolocation=()"
+			Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self'; manifest-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+			-Server
+		}
+		# Ask AI is SSE — stream it (no buffering). kitchen-web's nginx also disables
+		# proxy_buffering for this path.
+		reverse_proxy /api/ai/chat kitchen-web:80 {
+			flush_interval -1
+		}
+		reverse_proxy kitchen-web:80
 	}
 
 	# ---- apex -> options ----

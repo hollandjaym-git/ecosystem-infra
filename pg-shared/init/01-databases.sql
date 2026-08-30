@@ -29,3 +29,9 @@ CREATE ROLE gktw LOGIN PASSWORD 'gktw_local';
 CREATE DATABASE gktw OWNER gktw;
 REVOKE CONNECT ON DATABASE gktw FROM PUBLIC;
 GRANT  CONNECT ON DATABASE gktw TO gktw;
+
+-- kitchen -------------------------------------------------------------------
+CREATE ROLE kitchen LOGIN PASSWORD 'kitchen_local';
+CREATE DATABASE kitchen OWNER kitchen;
+REVOKE CONNECT ON DATABASE kitchen FROM PUBLIC;
+GRANT  CONNECT ON DATABASE kitchen TO kitchen;
