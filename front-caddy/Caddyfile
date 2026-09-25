@@ -45,6 +45,11 @@
 			Referrer-Policy "strict-origin-when-cross-origin"
 			-Server
 		}
+		# Ask AI is SSE — stream it (no buffering). fitness-web's nginx also
+		# disables proxy_buffering for this path.
+		reverse_proxy /api/ai/chat fitness-web:80 {
+			flush_interval -1
+		}
 		reverse_proxy fitness-web:80
 	}
 
