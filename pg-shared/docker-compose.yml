@@ -7,11 +7,19 @@
 # Local: also publishes 5433 for inspection.
 # Droplet: DROP the `ports:` mapping, and set PGSHARED_SUPER_PASSWORD + real
 # per-role passwords from secrets.
+# Cap container logs (json-file is unbounded by default and fills the droplet disk).
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   pg-shared:
     image: postgres:16-alpine
     container_name: pg-shared
     restart: unless-stopped
+    logging: *default-logging
     environment:
       POSTGRES_PASSWORD: ${PGSHARED_SUPER_PASSWORD:-super_local}
       POSTGRES_DB: postgres

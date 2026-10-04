@@ -1,11 +1,19 @@
 # front-caddy — the single ecosystem entrypoint. Owns 80/443 on the droplet and
 # routes each alpinepost.app subdomain to that app's frontend over `edge`.
 # Only this stack binds the host's 80/443; the app stacks drop their own Caddy.
+# Cap container logs (json-file is unbounded by default and fills the droplet disk).
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   front-caddy:
     image: caddy:2-alpine
     container_name: front-caddy
     restart: unless-stopped
+    logging: *default-logging
     ports:
       - "80:80"
       - "443:443"
