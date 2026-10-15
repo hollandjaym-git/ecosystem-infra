@@ -28,6 +28,10 @@
 			Content-Security-Policy "default-src 'self'; script-src 'self' https://s3.tradingview.com https://*.tradingview.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.tradingview.com; connect-src 'self' https://*.tradingview.com wss://*.tradingview.com https://api.schwabapi.com; frame-src https://*.tradingview.com; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
 			-Server
 		}
+		# User uploads live on the app origin: serve them inert (sandboxed, no scripts) regardless of the
+		# app-wide policy above. Images/audio still embed fine; only direct navigation is locked down.
+		@uploads path /api/uploads/*
+		header @uploads >Content-Security-Policy "default-src 'none'; img-src 'self'; media-src 'self'; style-src 'unsafe-inline'; sandbox"
 		# SSE streaming endpoint — no buffering. NOTE: it now flows front-caddy ->
 		# oj-web (nginx) -> backend, so nginx must ALSO disable proxy_buffering for
 		# /api/ai-suggestions (follow-up in options-journal/nginx.conf).
@@ -48,6 +52,10 @@
 			Permissions-Policy "camera=(self), microphone=(), geolocation=(self)"
 			-Server
 		}
+		# User uploads live on the app origin: serve them inert (sandboxed, no scripts) regardless of the
+		# app-wide policy above. Images/audio still embed fine; only direct navigation is locked down.
+		@uploads path /api/uploads/*
+		header @uploads >Content-Security-Policy "default-src 'none'; img-src 'self'; media-src 'self'; style-src 'unsafe-inline'; sandbox"
 		# Ask AI is SSE — stream it (no buffering). fitness-web's nginx also
 		# disables proxy_buffering for this path.
 		reverse_proxy /api/ai/chat fitness-web:80 {
@@ -74,6 +82,10 @@
 			Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; manifest-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
 			-Server
 		}
+		# User uploads live on the app origin: serve them inert (sandboxed, no scripts) regardless of the
+		# app-wide policy above. Images/audio still embed fine; only direct navigation is locked down.
+		@uploads path /api/uploads/*
+		header @uploads >Content-Security-Policy "default-src 'none'; img-src 'self'; media-src 'self'; style-src 'unsafe-inline'; sandbox"
 		reverse_proxy peptides-web:80
 	}
 
@@ -109,6 +121,10 @@
 			Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; manifest-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
 			-Server
 		}
+		# User uploads live on the app origin: serve them inert (sandboxed, no scripts) regardless of the
+		# app-wide policy above. Images/audio still embed fine; only direct navigation is locked down.
+		@uploads path /api/uploads/*
+		header @uploads >Content-Security-Policy "default-src 'none'; img-src 'self'; media-src 'self'; style-src 'unsafe-inline'; sandbox"
 		# Ask AI is SSE — stream it (no buffering). kitchen-web's nginx also disables
 		# proxy_buffering for this path.
 		reverse_proxy /api/ai/chat kitchen-web:80 {
