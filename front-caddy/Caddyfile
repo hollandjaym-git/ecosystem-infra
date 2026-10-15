@@ -25,7 +25,7 @@
 			Referrer-Policy "strict-origin-when-cross-origin"
 			Cross-Origin-Opener-Policy "same-origin"
 			Permissions-Policy "camera=(), microphone=(), geolocation=()"
-			Content-Security-Policy "default-src 'self'; script-src 'self' https://s3.tradingview.com https://*.tradingview.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.tradingview.com; connect-src 'self' https://*.tradingview.com wss://*.tradingview.com https://api.schwabapi.com; frame-src https://*.tradingview.com; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+			Content-Security-Policy "default-src 'self'; script-src 'self' https://static.cloudflareinsights.com https://s3.tradingview.com https://*.tradingview.com https://*.tradingview-widget.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.tradingview.com https://*.tradingview-widget.com; connect-src 'self' https://cloudflareinsights.com https://fonts.googleapis.com https://fonts.gstatic.com https://*.tradingview.com https://*.tradingview-widget.com wss://*.tradingview.com wss://*.tradingview-widget.com https://api.schwabapi.com; frame-src https://*.tradingview.com https://*.tradingview-widget.com; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
 			-Server
 		}
 		# User uploads live on the app origin: serve them inert (sandboxed, no scripts) regardless of the
