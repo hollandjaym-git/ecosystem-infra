@@ -1,0 +1,65 @@
+{
+  "telegram_env_file": "/home/deploy/peptides/.env",
+  "state_dir": "/home/deploy/ecosystem-infra/security-digest/state",
+  "own_env_file": "/home/deploy/ecosystem-infra/security-digest/.env",
+  "expected_ports": [22, 80, 443],
+  "github_repos": [
+    "hollandjaym-git/options",
+    "hollandjaym-git/peptides",
+    "hollandjaym-git/kitchen",
+    "hollandjaym-git/fitness",
+    "hollandjaym-git/app-shell",
+    "hollandjaym-git/ecosystem-infra"
+  ],
+  "apps": {
+    "options": {
+      "label": "Options",
+      "url": "https://options.alpinepost.app",
+      "env_file": "/home/deploy/options/.env",
+      "containers": ["options-backend", "options-frontend"],
+      "db": { "container": "pg-shared", "user": "digest_ro", "name": "options_journal" },
+      "users_table": "app_users",
+      "auth_probe": "/api/auth/passkey/register/options",
+      "expect_headers": ["strict-transport-security", "x-content-type-options", "content-security-policy"],
+      "token_columns": [],
+      "constraints": []
+    },
+    "fitness": {
+      "label": "Fitness",
+      "url": "https://fitness.alpinepost.app",
+      "env_file": "/home/deploy/fitness/.env",
+      "containers": ["fitness-backend", "fitness-frontend"],
+      "db": { "container": "pg-shared", "user": "digest_ro", "name": "fitness" },
+      "users_table": "app_users",
+      "auth_probe": "/api/webauthn/register/options",
+      "expect_headers": ["strict-transport-security", "x-content-type-options", "content-security-policy"],
+      "token_columns": [["strava_accounts", "access_token"], ["strava_accounts", "refresh_token"], ["peptides_accounts", "access_token"]],
+      "constraints": ["strava_tokens_sealed", "peptides_token_sealed"],
+      "csp_report_container": "fitness-backend"
+    },
+    "kitchen": {
+      "label": "Kitchen",
+      "url": "https://kitchen.alpinepost.app",
+      "env_file": "/home/deploy/kitchen/.env",
+      "containers": ["kitchen-backend", "kitchen-frontend"],
+      "db": { "container": "pg-shared", "user": "digest_ro", "name": "kitchen" },
+      "users_table": "app_users",
+      "auth_probe": "/api/webauthn/register/options",
+      "expect_headers": ["strict-transport-security", "x-content-type-options"],
+      "token_columns": [["kroger_accounts", "access_token"], ["kroger_accounts", "refresh_token"]],
+      "constraints": ["kroger_tokens_sealed"]
+    },
+    "peptides": {
+      "label": "Peptides",
+      "url": "https://peptides.alpinepost.app",
+      "env_file": "/home/deploy/peptides/.env",
+      "containers": ["peptides-backend-1", "peptides-frontend-1"],
+      "db": { "container": "pg-shared", "user": "digest_ro", "name": "peptides" },
+      "users_table": "users",
+      "auth_probe": "/api/webauthn/register/options",
+      "expect_headers": ["strict-transport-security", "x-content-type-options", "content-security-policy"],
+      "token_columns": [],
+      "constraints": []
+    }
+  }
+}

@@ -1,0 +1,5 @@
+config.local.json
+state/
+.env
+digest.log
+__pycache__/
