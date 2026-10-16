@@ -127,7 +127,9 @@ def signins(app, a):
         s.info("login_audit not readable (n/a)")
         return s
     ok, failed, who, via_passkey, unknown_pk = (num(x) for x in r)
+    # example.invalid is a reserved, never-routable domain: only test accounts use it, so it is not "guessing".
     brute = num((db.one("select count(*) from (select lower(email) from login_audit where not success and "
+                        "lower(email) not like '%@example.invalid' and "
                         "attempted_at > now() - interval '7 days' group by 1 having count(*) >= 5) t") or [0])[0])
     admin_fail = num((db.one(f"select count(*) from login_audit l join {a['users_table']} u on lower(u.email)=lower(l.email) "
                              "where u.role='admin' and not l.success and l.attempted_at > now() - interval '7 days'") or [0])[0])
@@ -140,8 +142,8 @@ def signins(app, a):
         s.flag("warn", f"{admin_fail} failed admin sign-in(s)")
     if brute:
         try:
-            top = db.rows("select lower(email), count(*) from login_audit where not success and attempted_at > now() - interval '7 days' "
-                          "group by 1 having count(*) >= 5 order by 2 desc limit 3")
+            top = db.rows("select lower(email), count(*) from login_audit where not success and lower(email) not like '%@example.invalid' "
+                          "and attempted_at > now() - interval '7 days' group by 1 having count(*) >= 5 order by 2 desc limit 3")
         except RuntimeError:
             top = []
         who_top = ", ".join(f"{mask_email(r[0])} x{r[1]}" for r in top)
