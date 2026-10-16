@@ -139,7 +139,13 @@ def signins(app, a):
     elif admin_fail:
         s.flag("warn", f"{admin_fail} failed admin sign-in(s)")
     if brute:
-        s.flag("warn", f"{brute} account(s) had 5+ failures (possible guessing)")
+        try:
+            top = db.rows("select lower(email), count(*) from login_audit where not success and attempted_at > now() - interval '7 days' "
+                          "group by 1 having count(*) >= 5 order by 2 desc limit 3")
+        except RuntimeError:
+            top = []
+        who_top = ", ".join(f"{mask_email(r[0])} x{r[1]}" for r in top)
+        s.flag("warn", f"{brute} account(s) had 5+ failures (possible guessing): {who_top}")
     if failed >= 200:
         s.flag("crit", f"{failed} failed sign-ins this week")
     elif failed >= 30:
@@ -441,6 +447,10 @@ def github(cfg, token):
             elif sev.get("high"):
                 s.flag("warn", f"{short}: {sev['high']} high dependency alert(s)")
             parts.append(f"{len(alerts)} alert(s)")
+        elif isinstance(alerts, dict) and alerts.get("_error") == 403:
+            # GitHub answers 403 "Dependabot alerts are disabled" when the repo has them switched off.
+            s.flag("warn", f"{short}: Dependabot security alerts are OFF (repo Settings > Code security)")
+            parts.append("alerts off")
         prs = gh(f"/repos/{repo}/pulls?state=open&per_page=100")
         if isinstance(prs, list):
             dep = sum(1 for p in prs if p.get("user", {}).get("login") == "dependabot[bot]")
@@ -463,7 +473,9 @@ def flat_metrics(sections):
 
 
 def load_history(state_dir, n=4):
-    files = sorted(Path(state_dir).glob("digest-*.json"))[-n:]
+    # Earlier runs from the same day (re-runs while testing) are not "last week".
+    today = dt.datetime.now().strftime("%Y-%m-%d")
+    files = [f for f in sorted(Path(state_dir).glob("digest-*.json")) if today not in f.name][-n:]
     out = []
     for f in files:
         try:
@@ -497,15 +509,18 @@ def ai_summary(sections, history, key):
               "overall verdict in one sentence. Then: what changed versus previous weeks (if any history), then what needs "
               "action this week, most important first, each with the concrete next step. If everything is healthy, say so "
               "briefly and do not invent concerns. Never repeat sensitive identifiers.")
-    body = json.dumps({"model": os.environ.get("DIGEST_AI_MODEL", "claude-sonnet-5-5"), "max_tokens": 700, "system": system,
+    body = json.dumps({"model": os.environ.get("DIGEST_AI_MODEL", "claude-sonnet-5-5"), "max_tokens": 4000, "system": system,
                        "messages": [{"role": "user", "content": json.dumps(payload)[:60000]}]}).encode()
     req = urllib.request.Request(AI_BASE + "/v1/messages", data=body, method="POST",
                                  headers={"x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json"})
     try:
         with urllib.request.urlopen(req, timeout=90) as r:
             data = json.loads(r.read())
+        # Sonnet 5.5 may spend part of max_tokens on a hidden "thinking" block; only the text blocks are the summary.
         text = "".join(b.get("text", "") for b in data.get("content", []) if b.get("type") == "text").strip()
-        return (text or None), (None if text else "AI summary came back empty")
+        if text and data.get("stop_reason") == "max_tokens":
+            text += " (cut short)"
+        return (text or None), (None if text else f"AI summary came back empty (stop: {data.get('stop_reason')})")
     except urllib.error.HTTPError as e:
         return None, f"AI summary failed (HTTP {e.code})"
     except Exception as e:
