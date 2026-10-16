@@ -168,8 +168,11 @@ def accounts(app, a):
                       "passkeys": pk_total, "active_sessions": num(sess[0]), "sessions_over_7d": num(sess[1])})
     s.info(f"{total} users, {with_pk} with a passkey ({pk_total} passkeys), {pk_only} passkey-only; "
            f"{num(sess[0])} active sessions")
-    if locked:
-        s.flag("warn", f"{locked} locked account(s)")
+    expected = a.get("expected_locked", 0)
+    if locked > expected:
+        s.flag("warn", f"{locked} locked account(s) ({expected} expected)")
+    elif locked:
+        s.info(f"{locked} locked account(s), as expected")
     return s
 
 
@@ -329,8 +332,11 @@ def host(cfg):
     return s
 
 
+UA = "Mozilla/5.0 (compatible; AlpinePostSecurityDigest/1.0; +read-only)"  # Cloudflare rejects Python's default agent
+
+
 def http(url, method="GET", headers=None, timeout=15):
-    req = urllib.request.Request(url, method=method, headers=headers or {})
+    req = urllib.request.Request(url, method=method, headers={"User-Agent": UA, **(headers or {})})
     try:
         with urllib.request.urlopen(req, timeout=timeout) as r:
             return r.status, {k.lower(): v for k, v in r.headers.items()}
@@ -365,7 +371,7 @@ def web(app, a):
         ctx = ssl.create_default_context()
         with socket.create_connection((host_name, 443), 10) as sock, ctx.wrap_socket(sock, server_hostname=host_name) as tls:
             exp = dt.datetime.strptime(tls.getpeercert()["notAfter"], "%b %d %H:%M:%S %Y %Z")
-        days = (exp - dt.datetime.utcnow()).days
+        days = (exp - dt.datetime.now(dt.timezone.utc).replace(tzinfo=None)).days
         s.metrics["cert_days"] = days
         if days < 7:
             s.flag("crit", f"TLS certificate expires in {days} days")

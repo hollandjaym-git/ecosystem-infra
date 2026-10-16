@@ -33,6 +33,7 @@
       "users_table": "app_users",
       "auth_probe": "/api/webauthn/register/options",
       "expect_headers": ["strict-transport-security", "x-content-type-options", "content-security-policy"],
+      "expected_locked": 1,
       "token_columns": [["strava_accounts", "access_token"], ["strava_accounts", "refresh_token"], ["peptides_accounts", "access_token"]],
       "constraints": ["strava_tokens_sealed", "peptides_token_sealed"],
       "csp_report_container": "fitness-backend"
