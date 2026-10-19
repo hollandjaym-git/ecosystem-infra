@@ -14,7 +14,7 @@ It replaces the scattered plans (`options/docs/frontend-modernization/PLAN.md`, 
 
 | Step | What | Status |
 |---|---|---|
-| 0 | Ship what is already finished | ⬜ |
+| 0 | Ship what is already finished | 🟨 pushed 2026-10-19; droplet deploys scheduled for 3:22 PM Central (after market close) |
 | 1 | Refresh app-shell (foundation) | ⬜ |
 | 2 | Roll the standard to Kitchen, then Fitness, then Peptides | ⬜ |
 | 3 | Options platform alignment (Node 24, target versions) | ⬜ |
@@ -71,16 +71,16 @@ Every app, plus app-shell, ends up on this. "Latest" means the newest release of
 
 Rule: **a step is done only when it is deployed (or merged), verified, and marked 🟩 here.** No new step starts while the previous one is half open, except items in Step 0 that are waiting on the owner.
 
-### Step 0: ship what is already finished  ⬜
+### Step 0: ship what is already finished  🟨
 
 Small, no new code. Deploys after market close (section 5).
 
 | Item | State | What is left |
 |---|---|---|
-| ecosystem-infra: Fitness CSP enforced | committed, not pushed | Push, then reload Caddy on the droplet. |
-| ecosystem-infra: digest probe fix | committed, not pushed | Push, then `git pull` on the droplet (and fix the droplet's own `config.local.json` if it has one). |
-| Peptides: Flask 3.1.3 and uuid override | committed, not pushed | Push, rebuild the bridges on the droplet; clears the 5 open alerts. |
-| ecosystem-infra: this plan | uncommitted | Commit it with the rest. |
+| ecosystem-infra: Fitness CSP enforced | 🟩 pushed | 🟨 Copy the Caddyfile to the droplet (it is not a git clone there), validate, reload Caddy: scheduled after close. |
+| ecosystem-infra: digest probe fix | 🟩 pushed | 🟨 Copy `config.json` to the droplet (no git there, and no `config.local.json`), dry-run the digest: scheduled after close. |
+| Peptides: Flask 3.1.3 and uuid override | 🟩 pushed | 🟨 `bash deploy.sh` (rebuilds the two bridges); clears the 5 open alerts: scheduled after close. |
+| ecosystem-infra: this plan | 🟩 committed and pushed | Nothing. |
 | Old Cloudflare landing page | disconnected in Cloudflare | Optional: remove `options` from the Cloudflare app in GitHub settings. |
 | Options | everything pushed and deployed | Nothing. |
 
@@ -194,4 +194,5 @@ Done when: the go/no-go is recorded here, and either the staged adoption is depl
 
 | Date | What changed | Why | Decided by |
 |---|---|---|---|
+| 2026-10-19 | 🟧 Step 0 deploys are not done by `git pull` on the droplet: the droplet's `ecosystem-infra` is a plain folder, not a clone, so the Caddyfile and digest config are copied over with a backup and a validate-then-reload | Found while preparing the deploy | Claude, noted for the owner |
 | 2026-10-19 | Shell adoption moved from Step 5 to Step 6 (last); TypeScript/Tailwind became Step 5; the shell-prep items moved from Step 1 into Step 6 | The owner wants all underpinnings done first, and is not yet sure about adopting at all | Owner |
