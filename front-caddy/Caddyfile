@@ -48,11 +48,10 @@
 			X-Content-Type-Options "nosniff"
 			Referrer-Policy "strict-origin-when-cross-origin"
 			# Clickjacking guard + feature policy. A full CSP needs testing against map tiles/charts first.
-			Content-Security-Policy "frame-ancestors 'none'"
-			# Full policy in REPORT-ONLY mode: nothing is blocked; violations are POSTed to the backend's /api/csp-report
-			# (logged as [csp-report]). Tighten into the enforced header above once a week of logs is clean.
-			# The sha256 is the inline theme bootstrap script in frontend/index.html — recompute if it changes.
-			Content-Security-Policy-Report-Only "default-src 'self'; script-src 'self' 'sha256-hC8OVWsFmxXdTLIpjyFSGg/zAYYbYZ2Q7CekEN6YoZU=' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://raw.githubusercontent.com; font-src 'self' data:; connect-src 'self' https://cloudflareinsights.com; media-src 'self' blob:; worker-src 'self' blob:; manifest-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; report-uri /api/csp-report"
+			# Full policy, ENFORCED (switched from report-only 2026-10-19: a week of clean reports). Violations are still POSTed to the
+			# backend's /api/csp-report (logged as [csp-report]) via report-uri.
+			# The sha256 is the inline theme bootstrap script in frontend/index.html - recompute if it changes (see the live page, not the source: line endings change the hash).
+			Content-Security-Policy "default-src 'self'; script-src 'self' 'sha256-hC8OVWsFmxXdTLIpjyFSGg/zAYYbYZ2Q7CekEN6YoZU=' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://raw.githubusercontent.com; font-src 'self' data:; connect-src 'self' https://cloudflareinsights.com; media-src 'self' blob:; worker-src 'self' blob:; manifest-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; report-uri /api/csp-report"
 			Permissions-Policy "camera=(self), microphone=(), geolocation=(self)"
 			-Server
 		}
