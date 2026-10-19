@@ -16,8 +16,8 @@ It replaces the scattered plans (`options/docs/frontend-modernization/PLAN.md`, 
 |---|---|---|
 | 0 | Ship what is already finished | 🟩 done 2026-10-19 (one optional item left; the digest still has to be read on Monday 2026-10-26) |
 | 1 | Refresh app-shell (foundation) | 🟩 done 2026-10-19: published backend 0.9.0 and frontend 0.10.0 |
-| 2 | Roll the standard to Kitchen, then Fitness, then Peptides | 🟨 Kitchen 🟩 and Fitness 🟩 deployed 2026-10-19; Peptides next |
-| 3 | Options platform alignment (Node 24, target versions) | ⬜ |
+| 2 | Roll the standard to Kitchen, then Fitness, then Peptides | 🟩 done 2026-10-19: Kitchen, Fitness and Peptides all deployed (owner sign-in checks pending for Fitness-style passkey/PIN on Peptides) |
+| 3 | Options platform alignment (Node 24, target versions) | ⬜ next |
 | 4 | Finish the Options backend split (slices 9m1 to 9m4) | ⬜ |
 | 5 | TypeScript and Tailwind in Options, as files are touched (ongoing) | ⬜ |
 | 6 | Adopt the shared shell in Options, in stages (last; go/no-go at the start of this step) | ⬜ |
@@ -99,7 +99,7 @@ Done when: app-shell builds and passes on the target table, new versions are pub
 
 **Result:** merged as app-shell PR 1 (GitHub checks green on Node 24 with Postgres) and published: `@hollandjaym-git/app-shell-backend` **0.9.0**, `@hollandjaym-git/app-shell-frontend` **0.10.0**. Routine bumps plus Vitest 5, express-rate-limit 8, bcryptjs 3 (checked: it verifies hashes written by version 2), dotenv 18, `@simplewebauthn` 14 (one type renamed; the real WebAuthn integration tests pass). 136 tests, both reference builds and both Docker images pass on Node 24. Dependabot added. `CHANGELOG.md` in the app-shell repo lists exactly what each app must do (section "What an app does to take these"). Deliberate gaps: `@types/node` stays on 24 (see section 8), TypeScript 7 and vite-plugin-pwa 2 wait (section 5).
 
-### Step 2: roll the standard to the three apps, one at a time  🟨
+### Step 2: roll the standard to the three apps, one at a time  🟩 done 2026-10-19
 
 Order: Kitchen (the reference app), then Fitness, then Peptides. For each: bump to the target table and the new shell versions, Node 24, add Dependabot, add Vitest if missing, run the app's tests, deploy on a quiet day, check the digest.
 
@@ -107,7 +107,7 @@ Order: Kitchen (the reference app), then Fitness, then Peptides. For each: bump 
 |---|---|---|---|
 | Kitchen | 🟩 deployed 2026-10-19 (commit 1c2e141, rollback tag `predeploy-20261019` on the droplet and the two images): all target versions, shell 0.9.0/0.10.0, Node 24, Vitest 5 with 12 frontend tests, backend tests via glob (8), Dependabot, CI rewritten and green on GitHub for the first time. Health 200, migrations up to date, no errors in the log, the other three apps still 200. **Owner to do: one passkey sign-in and one PIN sign-in on Kitchen** (the changelog asks for it after any shell bump). Remaining TypeScript/Tailwind items are not blockers. |
 | Fitness | 🟩 deployed 2026-10-19 (commit 949c789, rollback tag `predeploy-20261019` on the droplet and both images): all target versions, shell 0.9.0/0.10.0, Node 24, Vitest 5 with 13 frontend tests, backend tests via glob (8), CI now also runs the frontend tests (green), Dependabot. Health 200, migrations up to date, no errors in the log, login page loads with no CSP errors under the enforced policy, the other apps still 200. **Owner to do: one passkey sign-in and one PIN sign-in on Fitness.** Not done (not blockers): 92 frontend files still plain JavaScript and the backend is JavaScript, handled by the as-touched rule. |
-| Peptides | ⬜ | Already fully TypeScript and on Node 24; align versions; add a CI workflow if missing; Dependabot; drop the Capacitor `uuid` override once the CLI updates | Small |
+| Peptides | 🟩 deployed 2026-10-19 (commit 1d5e5d9, rollback tag `predeploy-20261019` on the droplet and the app images): all target versions, shell 0.9.0/0.10.0, Vitest 5 (258 frontend + 172 backend tests), `@simplewebauthn` 14 (one type renamed), express-rate-limit 8, dotenv 18, new CI workflow (real run green after the owner added `NPM_TOKEN`), Dependabot for npm, the two Python bridges and Actions. The frontend lockfile was regenerated (an old optional-peer conflict blocked the Vite plugin bump). Health 200, no errors in the log, other apps 200; the two bridges were not touched. Kept: the Capacitor `uuid` override (still needed). **Owner to do: one passkey sign-in and one PIN sign-in on Peptides.** |
 
 Done when: each app is deployed on the target table with tests and CI green, and the digest is clean.
 
@@ -190,6 +190,7 @@ Done when: the go/no-go is recorded here, and either the staged adoption is depl
 
 | Date | Step | What was completed |
 |---|---|---|
+| 2026-10-19 | Step 2c | Peptides deployed on the target stack; its first CI workflow, green. Step 2 complete. |
 | 2026-10-19 | Step 2b | Fitness deployed on the target stack (see the Fitness row); CI green with the frontend tests. |
 | 2026-10-19 | Step 2a | Kitchen deployed on the target stack (see the Kitchen row); first green CI run. |
 | 2026-10-19 | Step 1 | app-shell refreshed and published: backend 0.9.0, frontend 0.10.0 (PR 1, CI green). |
@@ -202,6 +203,7 @@ Done when: the go/no-go is recorded here, and either the staged adoption is depl
 |---|---|---|---|
 | 2026-10-19 | 🟧 Step 0 deploys are not done by `git pull` on the droplet: the droplet's `ecosystem-infra` is a plain folder, not a clone, so the Caddyfile and digest config are copied over with a backup and a validate-then-reload | Found while preparing the deploy | Claude, noted for the owner |
 | 2026-10-19 | 🟧 Step 0 droplet changes (including the Caddy reload and the Peptides rebuild) ran at about 12:40 PM Central, during trading hours, not after the close | The owner said "go ahead and run this now" after being told the Caddy reload touches the path Options shares | Owner |
+| 2026-10-19 | 🟧 Peptides: a first CI run reported green with every real step skipped (no `NPM_TOKEN` secret). Caught by reading the step results, not the green mark; re-run after the secret was added and passed for real | Found during Step 2c | Claude; owner added the secret |
 | 2026-10-19 | 🟧 Kitchen's CI had never actually run: the repo had no `NPM_TOKEN` secret, so it could not install the private shell packages. The plan table listed Kitchen CI as working; that was wrong. Peptides has the same gap (no secret, no workflow) and is handled in Step 2c. Fitness and Options already had the secret | Found during Step 2a | Owner added the secret to kitchen on 2026-10-19; CI is now green |
 | 2026-10-19 | 🟧 `@types/node` kept on **24**, not 26 as the decision table said | The types should match the Node runtime (24); 26 would describe APIs Node 24 does not have | Claude, from the agreed Node 24 decision (owner to veto) |
 | 2026-10-19 | Shell adoption moved from Step 5 to Step 6 (last); TypeScript/Tailwind became Step 5; the shell-prep items moved from Step 1 into Step 6 | The owner wants all underpinnings done first, and is not yet sure about adopting at all | Owner |
