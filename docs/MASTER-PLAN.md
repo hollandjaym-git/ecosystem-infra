@@ -16,7 +16,7 @@ It replaces the scattered plans (`options/docs/frontend-modernization/PLAN.md`, 
 |---|---|---|
 | 0 | Ship what is already finished | 🟩 done 2026-10-19 (one optional item left; the digest still has to be read on Monday 2026-10-26) |
 | 1 | Refresh app-shell (foundation) | 🟩 done 2026-10-19: published backend 0.9.0 and frontend 0.10.0 |
-| 2 | Roll the standard to Kitchen, then Fitness, then Peptides | 🟨 Kitchen built and tested locally; deploy scheduled for 3:09 PM Central |
+| 2 | Roll the standard to Kitchen, then Fitness, then Peptides | 🟨 Kitchen 🟩 deployed 2026-10-19; Fitness next |
 | 3 | Options platform alignment (Node 24, target versions) | ⬜ |
 | 4 | Finish the Options backend split (slices 9m1 to 9m4) | ⬜ |
 | 5 | TypeScript and Tailwind in Options, as files are touched (ongoing) | ⬜ |
@@ -105,7 +105,7 @@ Order: Kitchen (the reference app), then Fitness, then Peptides. For each: bump 
 
 | App | Status | Gaps to close | Size |
 |---|---|---|---|
-| Kitchen | 🟨 branch `stack-refresh-2026-10` (commit 1c2e141): all target versions, shell 0.9.0/0.10.0, Node 24, Vitest with 12 frontend tests, backend tests via glob (8), Dependabot, CI rewritten; checked locally (builds, tests, Docker on Node 24, login page, limiter, migrations). Deploy scheduled after close. Left over: TypeScript/Tailwind remainders are Step 5-style, not blockers. Original gaps below. | Node 22 to 24; add Vitest; 10 frontend files still plain JS (rest is TypeScript); backend 73 JS files; Dependabot | Medium |
+| Kitchen | 🟩 deployed 2026-10-19 (commit 1c2e141, rollback tag `predeploy-20261019` on the droplet and the two images): all target versions, shell 0.9.0/0.10.0, Node 24, Vitest 5 with 12 frontend tests, backend tests via glob (8), Dependabot, CI rewritten and green on GitHub for the first time. Health 200, migrations up to date, no errors in the log, the other three apps still 200. **Owner to do: one passkey sign-in and one PIN sign-in on Kitchen** (the changelog asks for it after any shell bump). Remaining TypeScript/Tailwind items are not blockers. |
 | Fitness | ⬜ | Node 22 to 24; add Vitest; 92 frontend files plain JS (13 TypeScript); backend 50 JS files; Dependabot; confirm no CSP violations once enforced | Medium to large |
 | Peptides | ⬜ | Already fully TypeScript and on Node 24; align versions; add a CI workflow if missing; Dependabot; drop the Capacitor `uuid` override once the CLI updates | Small |
 
@@ -190,6 +190,7 @@ Done when: the go/no-go is recorded here, and either the staged adoption is depl
 
 | Date | Step | What was completed |
 |---|---|---|
+| 2026-10-19 | Step 2a | Kitchen deployed on the target stack (see the Kitchen row); first green CI run. |
 | 2026-10-19 | Step 1 | app-shell refreshed and published: backend 0.9.0, frontend 0.10.0 (PR 1, CI green). |
 | 2026-10-19 | Step 0 | Fitness CSP enforced; digest probe fixed; Peptides Flask and uuid fixes deployed; plan page committed. |
 | 2026-10-19 | (pre-plan) | Options frontend Stages 0 to 4 deployed; planner capital fix; digest history; Dependabot PRs merged; Options off the old landing page. |
@@ -200,5 +201,6 @@ Done when: the go/no-go is recorded here, and either the staged adoption is depl
 |---|---|---|---|
 | 2026-10-19 | 🟧 Step 0 deploys are not done by `git pull` on the droplet: the droplet's `ecosystem-infra` is a plain folder, not a clone, so the Caddyfile and digest config are copied over with a backup and a validate-then-reload | Found while preparing the deploy | Claude, noted for the owner |
 | 2026-10-19 | 🟧 Step 0 droplet changes (including the Caddy reload and the Peptides rebuild) ran at about 12:40 PM Central, during trading hours, not after the close | The owner said "go ahead and run this now" after being told the Caddy reload touches the path Options shares | Owner |
+| 2026-10-19 | 🟧 Kitchen's CI had never actually run: the repo had no `NPM_TOKEN` secret, so it could not install the private shell packages. The plan table listed Kitchen CI as working; that was wrong. Peptides has the same gap (no secret, no workflow) and is handled in Step 2c. Fitness and Options already had the secret | Found during Step 2a | Owner added the secret to kitchen on 2026-10-19; CI is now green |
 | 2026-10-19 | 🟧 `@types/node` kept on **24**, not 26 as the decision table said | The types should match the Node runtime (24); 26 would describe APIs Node 24 does not have | Claude, from the agreed Node 24 decision (owner to veto) |
 | 2026-10-19 | Shell adoption moved from Step 5 to Step 6 (last); TypeScript/Tailwind became Step 5; the shell-prep items moved from Step 1 into Step 6 | The owner wants all underpinnings done first, and is not yet sure about adopting at all | Owner |
