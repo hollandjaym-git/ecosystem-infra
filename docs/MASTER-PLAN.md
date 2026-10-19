@@ -81,7 +81,7 @@ Small, no new code. Deploys after market close (section 5).
 | ecosystem-infra: digest probe fix | 🟩 pushed | 🟩 Config copied (backup kept); the dry-run now shows "Options public site" green. |
 | Peptides: Flask 3.1.3 and uuid override | 🟩 pushed | 🟩 `deploy.sh` run: only the two bridges were recreated (Flask 3.1.3 confirmed inside both); Peptides backend and frontend untouched; site 200. |
 | ecosystem-infra: this plan | 🟩 committed and pushed | Nothing. |
-| Old Cloudflare landing page | disconnected in Cloudflare | Optional: remove `options` from the Cloudflare app in GitHub settings. |
+| Old Cloudflare landing page | 🟩 Worker deleted in Cloudflare; the Cloudflare GitHub app narrowed from "All repositories" to only `alpinepost-landing` (2026-10-19) | Nothing. (Optional, not urgent: tidy the unused `sfoptionsdesk.com` domain in Cloudflare.) |
 | Options | everything pushed and deployed | Nothing. |
 
 Done when: the next weekly security digest shows Options and Fitness green and Peptides with 0 alerts. (Checked early with a dry run: Options public site green. Still to read on 2026-10-26: Peptides alert count, and 2 failed admin sign-ins on Options flagged in the dry run, for the owner to glance at.)
@@ -190,6 +190,7 @@ Done when: the go/no-go is recorded here, and either the staged adoption is depl
 
 | Date | Step | What was completed |
 |---|---|---|
+| 2026-10-19 | Cleanup | Cloudflare GitHub app access narrowed to `alpinepost-landing` only (it had every repo); only one Worker remains in Cloudflare. |
 | 2026-10-19 | Step 2c | Peptides deployed on the target stack; its first CI workflow, green. Step 2 complete. |
 | 2026-10-19 | Step 2b | Fitness deployed on the target stack (see the Fitness row); CI green with the frontend tests. |
 | 2026-10-19 | Step 2a | Kitchen deployed on the target stack (see the Kitchen row); first green CI run. |
@@ -203,6 +204,7 @@ Done when: the go/no-go is recorded here, and either the staged adoption is depl
 |---|---|---|---|
 | 2026-10-19 | 🟧 Step 0 deploys are not done by `git pull` on the droplet: the droplet's `ecosystem-infra` is a plain folder, not a clone, so the Caddyfile and digest config are copied over with a backup and a validate-then-reload | Found while preparing the deploy | Claude, noted for the owner |
 | 2026-10-19 | 🟧 Step 0 droplet changes (including the Caddy reload and the Peptides rebuild) ran at about 12:40 PM Central, during trading hours, not after the close | The owner said "go ahead and run this now" after being told the Caddy reload touches the path Options shares | Owner |
+| 2026-10-19 | 🟧 The Step 0 "remove `options` from the Cloudflare app" item became "narrow the app to the one repo it needs", because the app had access to all repositories, not a list | The settings page showed All repositories | Owner, with Claude |
 | 2026-10-19 | 🟧 Peptides: a first CI run reported green with every real step skipped (no `NPM_TOKEN` secret). Caught by reading the step results, not the green mark; re-run after the secret was added and passed for real | Found during Step 2c | Claude; owner added the secret |
 | 2026-10-19 | 🟧 Kitchen's CI had never actually run: the repo had no `NPM_TOKEN` secret, so it could not install the private shell packages. The plan table listed Kitchen CI as working; that was wrong. Peptides has the same gap (no secret, no workflow) and is handled in Step 2c. Fitness and Options already had the secret | Found during Step 2a | Owner added the secret to kitchen on 2026-10-19; CI is now green |
 | 2026-10-19 | 🟧 `@types/node` kept on **24**, not 26 as the decision table said | The types should match the Node runtime (24); 26 would describe APIs Node 24 does not have | Claude, from the agreed Node 24 decision (owner to veto) |
