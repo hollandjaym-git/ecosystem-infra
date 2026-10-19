@@ -17,7 +17,7 @@ It replaces the scattered plans (`options/docs/frontend-modernization/PLAN.md`, 
 | 0 | Ship what is already finished | 🟩 done 2026-10-19 (one optional item left; the digest still has to be read on Monday 2026-10-26) |
 | 1 | Refresh app-shell (foundation) | 🟩 done 2026-10-19: published backend 0.9.0 and frontend 0.10.0 |
 | 2 | Roll the standard to Kitchen, then Fitness, then Peptides | 🟩 done 2026-10-19: Kitchen, Fitness and Peptides all deployed (owner sign-in checks pending for Fitness-style passkey/PIN on Peptides) |
-| 3 | Options platform alignment (Node 24, target versions) | ⬜ next |
+| 3 | Options platform alignment (Node 24, target versions) | 🟨 built and verified locally on branch `stack-refresh-2026-10` (commit 98d31ec); deploy not done yet |
 | 4 | Finish the Options backend split (slices 9m1 to 9m4) | ⬜ |
 | 5 | TypeScript and Tailwind in Options, as files are touched (ongoing) | ⬜ |
 | 6 | Adopt the shared shell in Options, in stages (last; go/no-go at the start of this step) | ⬜ |
@@ -111,13 +111,15 @@ Order: Kitchen (the reference app), then Fitness, then Peptides. For each: bump 
 
 Done when: each app is deployed on the target table with tests and CI green, and the digest is clean.
 
-### Step 3: Options platform alignment  ⬜
+### Step 3: Options platform alignment  🟨
 
 1. **Node 20 to 24** in both Dockerfiles (urgent and small; run the backend suite and the full browser suite).
 2. Bump to the target table and the new shell backend version.
 3. Keep Dependabot as it is (the model for the others).
 
 Done when: Options is on the same table as the others and deployed.
+
+**Status 2026-10-19 (7-minute session):** branch `stack-refresh-2026-10`, commit 98d31ec, pushed, not merged, not deployed. Node 24 in both Dockerfiles, CI and the security workflow (actions v7); `app-shell-backend` 0.9.0, bcryptjs 3, Anthropic SDK 0.135, `@simplewebauthn/browser` 14. Checked locally: 45 backend tests, 56 frontend tests, type check, build, the Docker stack runs on Node 24.19 and answers health, `freeVars` clean, and the sign-in snapshot matches the saved baseline except one expected difference: passkey registration options now also offer algorithm -48 (new in `@simplewebauthn` 14; authenticators that do not support it ignore it). **Left:** push GitHub's checks (the CI was not run yet), merge, rollback tag and deploy on the droplet (after market close), then the owner tries one passkey and one PIN sign-in. Express, pg, React, Vite, router and rate-limit were already on target.
 
 ### Step 4: finish the Options backend split (Phase 4)  ⬜
 
