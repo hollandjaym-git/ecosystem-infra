@@ -19,7 +19,7 @@
       "containers": ["options-backend", "options-frontend"],
       "db": { "container": "pg-shared", "user": "digest_ro", "name": "options_journal" },
       "users_table": "app_users",
-      "auth_probe": "/api/auth/passkey/register/options",
+      "auth_probe": "/api/webauthn/register/options",
       "expect_headers": ["strict-transport-security", "x-content-type-options", "content-security-policy"],
       "token_columns": [],
       "constraints": []
