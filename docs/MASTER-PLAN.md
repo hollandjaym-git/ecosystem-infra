@@ -16,7 +16,7 @@ It replaces the scattered plans (`options/docs/frontend-modernization/PLAN.md`, 
 |---|---|---|
 | 0 | Ship what is already finished | 🟩 done 2026-10-19 (one optional item left; the digest still has to be read on Monday 2026-10-26) |
 | 1 | Refresh app-shell (foundation) | 🟩 done 2026-10-19: published backend 0.9.0 and frontend 0.10.0 |
-| 2 | Roll the standard to Kitchen, then Fitness, then Peptides | 🟨 Kitchen 🟩 deployed 2026-10-19; Fitness next |
+| 2 | Roll the standard to Kitchen, then Fitness, then Peptides | 🟨 Kitchen 🟩 and Fitness 🟩 deployed 2026-10-19; Peptides next |
 | 3 | Options platform alignment (Node 24, target versions) | ⬜ |
 | 4 | Finish the Options backend split (slices 9m1 to 9m4) | ⬜ |
 | 5 | TypeScript and Tailwind in Options, as files are touched (ongoing) | ⬜ |
@@ -106,7 +106,7 @@ Order: Kitchen (the reference app), then Fitness, then Peptides. For each: bump 
 | App | Status | Gaps to close | Size |
 |---|---|---|---|
 | Kitchen | 🟩 deployed 2026-10-19 (commit 1c2e141, rollback tag `predeploy-20261019` on the droplet and the two images): all target versions, shell 0.9.0/0.10.0, Node 24, Vitest 5 with 12 frontend tests, backend tests via glob (8), Dependabot, CI rewritten and green on GitHub for the first time. Health 200, migrations up to date, no errors in the log, the other three apps still 200. **Owner to do: one passkey sign-in and one PIN sign-in on Kitchen** (the changelog asks for it after any shell bump). Remaining TypeScript/Tailwind items are not blockers. |
-| Fitness | ⬜ | Node 22 to 24; add Vitest; 92 frontend files plain JS (13 TypeScript); backend 50 JS files; Dependabot; confirm no CSP violations once enforced | Medium to large |
+| Fitness | 🟩 deployed 2026-10-19 (commit 949c789, rollback tag `predeploy-20261019` on the droplet and both images): all target versions, shell 0.9.0/0.10.0, Node 24, Vitest 5 with 13 frontend tests, backend tests via glob (8), CI now also runs the frontend tests (green), Dependabot. Health 200, migrations up to date, no errors in the log, login page loads with no CSP errors under the enforced policy, the other apps still 200. **Owner to do: one passkey sign-in and one PIN sign-in on Fitness.** Not done (not blockers): 92 frontend files still plain JavaScript and the backend is JavaScript, handled by the as-touched rule. |
 | Peptides | ⬜ | Already fully TypeScript and on Node 24; align versions; add a CI workflow if missing; Dependabot; drop the Capacitor `uuid` override once the CLI updates | Small |
 
 Done when: each app is deployed on the target table with tests and CI green, and the digest is clean.
@@ -190,6 +190,7 @@ Done when: the go/no-go is recorded here, and either the staged adoption is depl
 
 | Date | Step | What was completed |
 |---|---|---|
+| 2026-10-19 | Step 2b | Fitness deployed on the target stack (see the Fitness row); CI green with the frontend tests. |
 | 2026-10-19 | Step 2a | Kitchen deployed on the target stack (see the Kitchen row); first green CI run. |
 | 2026-10-19 | Step 1 | app-shell refreshed and published: backend 0.9.0, frontend 0.10.0 (PR 1, CI green). |
 | 2026-10-19 | Step 0 | Fitness CSP enforced; digest probe fixed; Peptides Flask and uuid fixes deployed; plan page committed. |
