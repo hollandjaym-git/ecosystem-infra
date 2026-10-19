@@ -14,7 +14,7 @@ It replaces the scattered plans (`options/docs/frontend-modernization/PLAN.md`, 
 
 | Step | What | Status |
 |---|---|---|
-| 0 | Ship what is already finished | 🟨 pushed 2026-10-19; droplet deploys scheduled for 3:22 PM Central (after market close) |
+| 0 | Ship what is already finished | 🟩 done 2026-10-19 (one optional item left; the digest still has to be read on Monday 2026-10-26) |
 | 1 | Refresh app-shell (foundation) | ⬜ |
 | 2 | Roll the standard to Kitchen, then Fitness, then Peptides | ⬜ |
 | 3 | Options platform alignment (Node 24, target versions) | ⬜ |
@@ -71,20 +71,20 @@ Every app, plus app-shell, ends up on this. "Latest" means the newest release of
 
 Rule: **a step is done only when it is deployed (or merged), verified, and marked 🟩 here.** No new step starts while the previous one is half open, except items in Step 0 that are waiting on the owner.
 
-### Step 0: ship what is already finished  🟨
+### Step 0: ship what is already finished  🟩
 
 Small, no new code. Deploys after market close (section 5).
 
 | Item | State | What is left |
 |---|---|---|
-| ecosystem-infra: Fitness CSP enforced | 🟩 pushed | 🟨 Copy the Caddyfile to the droplet (it is not a git clone there), validate, reload Caddy: scheduled after close. |
-| ecosystem-infra: digest probe fix | 🟩 pushed | 🟨 Copy `config.json` to the droplet (no git there, and no `config.local.json`), dry-run the digest: scheduled after close. |
-| Peptides: Flask 3.1.3 and uuid override | 🟩 pushed | 🟨 `bash deploy.sh` (rebuilds the two bridges); clears the 5 open alerts: scheduled after close. |
+| ecosystem-infra: Fitness CSP enforced | 🟩 pushed | 🟩 Caddyfile backed up, validated, copied, Caddy reloaded; Fitness serves the enforced policy and its sign-in page loads with no policy errors. All four sites answer 200. |
+| ecosystem-infra: digest probe fix | 🟩 pushed | 🟩 Config copied (backup kept); the dry-run now shows "Options public site" green. |
+| Peptides: Flask 3.1.3 and uuid override | 🟩 pushed | 🟩 `deploy.sh` run: only the two bridges were recreated (Flask 3.1.3 confirmed inside both); Peptides backend and frontend untouched; site 200. |
 | ecosystem-infra: this plan | 🟩 committed and pushed | Nothing. |
 | Old Cloudflare landing page | disconnected in Cloudflare | Optional: remove `options` from the Cloudflare app in GitHub settings. |
 | Options | everything pushed and deployed | Nothing. |
 
-Done when: the next weekly security digest shows Options and Fitness green and Peptides with 0 alerts.
+Done when: the next weekly security digest shows Options and Fitness green and Peptides with 0 alerts. (Checked early with a dry run: Options public site green. Still to read on 2026-10-26: Peptides alert count, and 2 failed admin sign-ins on Options flagged in the dry run, for the owner to glance at.)
 
 ### Step 1: app-shell refresh (the foundation)  ⬜
 
@@ -188,6 +188,7 @@ Done when: the go/no-go is recorded here, and either the staged adoption is depl
 
 | Date | Step | What was completed |
 |---|---|---|
+| 2026-10-19 | Step 0 | Fitness CSP enforced; digest probe fixed; Peptides Flask and uuid fixes deployed; plan page committed. |
 | 2026-10-19 | (pre-plan) | Options frontend Stages 0 to 4 deployed; planner capital fix; digest history; Dependabot PRs merged; Options off the old landing page. |
 
 ## 8. Deviations and plan changes
@@ -195,4 +196,5 @@ Done when: the go/no-go is recorded here, and either the staged adoption is depl
 | Date | What changed | Why | Decided by |
 |---|---|---|---|
 | 2026-10-19 | 🟧 Step 0 deploys are not done by `git pull` on the droplet: the droplet's `ecosystem-infra` is a plain folder, not a clone, so the Caddyfile and digest config are copied over with a backup and a validate-then-reload | Found while preparing the deploy | Claude, noted for the owner |
+| 2026-10-19 | 🟧 Step 0 droplet changes (including the Caddy reload and the Peptides rebuild) ran at about 12:40 PM Central, during trading hours, not after the close | The owner said "go ahead and run this now" after being told the Caddy reload touches the path Options shares | Owner |
 | 2026-10-19 | Shell adoption moved from Step 5 to Step 6 (last); TypeScript/Tailwind became Step 5; the shell-prep items moved from Step 1 into Step 6 | The owner wants all underpinnings done first, and is not yet sure about adopting at all | Owner |
