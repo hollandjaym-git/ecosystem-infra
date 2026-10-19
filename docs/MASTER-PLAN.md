@@ -15,8 +15,8 @@ It replaces the scattered plans (`options/docs/frontend-modernization/PLAN.md`, 
 | Step | What | Status |
 |---|---|---|
 | 0 | Ship what is already finished | 🟩 done 2026-10-19 (one optional item left; the digest still has to be read on Monday 2026-10-26) |
-| 1 | Refresh app-shell (foundation) | ⬜ |
-| 2 | Roll the standard to Kitchen, then Fitness, then Peptides | ⬜ |
+| 1 | Refresh app-shell (foundation) | 🟩 done 2026-10-19: published backend 0.9.0 and frontend 0.10.0 |
+| 2 | Roll the standard to Kitchen, then Fitness, then Peptides | ⬜ next |
 | 3 | Options platform alignment (Node 24, target versions) | ⬜ |
 | 4 | Finish the Options backend split (slices 9m1 to 9m4) | ⬜ |
 | 5 | TypeScript and Tailwind in Options, as files are touched (ongoing) | ⬜ |
@@ -59,7 +59,7 @@ Every app, plus app-shell, ends up on this. "Latest" means the newest release of
 | express-rate-limit | ^8.7 | 8.7 Options; 7.x others | Adopt (section 5). |
 | Anthropic SDK | latest 0.13x | 0.134 Options; 0.120 to 0.122 others | Keep within a few releases. |
 | `@simplewebauthn` | 14 | 13 in app-shell | Adopt carefully with a passkey sign-in test per app. |
-| bcryptjs / dotenv / `@types/node` | 3 / 18 / 26 | 2 / 16 / 24 in app-shell | Adopt with the rest. |
+| bcryptjs / dotenv / `@types/node` | 3 / 18 / **24** (matches Node 24, not 26) | 2 / 16 / 24 in app-shell before Step 1 | bcryptjs and dotenv adopted in app-shell 2026-10-19. |
 | Postgres | 16 | 16 everywhere | Fine until 2028. |
 | Dependabot | on, weekly, grouped | Options only | Add to the other four repos. |
 | CI | build + tests on every push | Options, app-shell, Kitchen, Fitness; Peptides: no workflow folder found in my copy (the digest says green: check) | |
@@ -86,7 +86,7 @@ Small, no new code. Deploys after market close (section 5).
 
 Done when: the next weekly security digest shows Options and Fitness green and Peptides with 0 alerts. (Checked early with a dry run: Options public site green. Still to read on 2026-10-26: Peptides alert count, and 2 failed admin sign-ins on Options flagged in the dry run, for the owner to glance at.)
 
-### Step 1: app-shell refresh (the foundation)  ⬜
+### Step 1: app-shell refresh (the foundation)  🟩 done 2026-10-19
 
 app-shell is its own repo; changing it touches no live app until an app bumps the package, so this is safe during trading hours.
 
@@ -96,6 +96,8 @@ app-shell is its own repo; changing it touches no live app until an app bumps th
 4. Publish new `app-shell-backend` and `app-shell-frontend` versions and write the changelog line each app needs.
 
 Done when: app-shell builds and passes on the target table, new versions are published, and the changelog says exactly what an app must change.
+
+**Result:** merged as app-shell PR 1 (GitHub checks green on Node 24 with Postgres) and published: `@hollandjaym-git/app-shell-backend` **0.9.0**, `@hollandjaym-git/app-shell-frontend` **0.10.0**. Routine bumps plus Vitest 5, express-rate-limit 8, bcryptjs 3 (checked: it verifies hashes written by version 2), dotenv 18, `@simplewebauthn` 14 (one type renamed; the real WebAuthn integration tests pass). 136 tests, both reference builds and both Docker images pass on Node 24. Dependabot added. `CHANGELOG.md` in the app-shell repo lists exactly what each app must do (section "What an app does to take these"). Deliberate gaps: `@types/node` stays on 24 (see section 8), TypeScript 7 and vite-plugin-pwa 2 wait (section 5).
 
 ### Step 2: roll the standard to the three apps, one at a time  ⬜
 
@@ -188,6 +190,7 @@ Done when: the go/no-go is recorded here, and either the staged adoption is depl
 
 | Date | Step | What was completed |
 |---|---|---|
+| 2026-10-19 | Step 1 | app-shell refreshed and published: backend 0.9.0, frontend 0.10.0 (PR 1, CI green). |
 | 2026-10-19 | Step 0 | Fitness CSP enforced; digest probe fixed; Peptides Flask and uuid fixes deployed; plan page committed. |
 | 2026-10-19 | (pre-plan) | Options frontend Stages 0 to 4 deployed; planner capital fix; digest history; Dependabot PRs merged; Options off the old landing page. |
 
@@ -197,4 +200,5 @@ Done when: the go/no-go is recorded here, and either the staged adoption is depl
 |---|---|---|---|
 | 2026-10-19 | 🟧 Step 0 deploys are not done by `git pull` on the droplet: the droplet's `ecosystem-infra` is a plain folder, not a clone, so the Caddyfile and digest config are copied over with a backup and a validate-then-reload | Found while preparing the deploy | Claude, noted for the owner |
 | 2026-10-19 | 🟧 Step 0 droplet changes (including the Caddy reload and the Peptides rebuild) ran at about 12:40 PM Central, during trading hours, not after the close | The owner said "go ahead and run this now" after being told the Caddy reload touches the path Options shares | Owner |
+| 2026-10-19 | 🟧 `@types/node` kept on **24**, not 26 as the decision table said | The types should match the Node runtime (24); 26 would describe APIs Node 24 does not have | Claude, from the agreed Node 24 decision (owner to veto) |
 | 2026-10-19 | Shell adoption moved from Step 5 to Step 6 (last); TypeScript/Tailwind became Step 5; the shell-prep items moved from Step 1 into Step 6 | The owner wants all underpinnings done first, and is not yet sure about adopting at all | Owner |
