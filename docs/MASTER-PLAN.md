@@ -16,7 +16,7 @@ It replaces the scattered plans (`options/docs/frontend-modernization/PLAN.md`, 
 |---|---|---|
 | 0 | Ship what is already finished | 🟩 done 2026-10-19 (one optional item left; the digest still has to be read on Monday 2026-10-26) |
 | 1 | Refresh app-shell (foundation) | 🟩 done 2026-10-19: published backend 0.9.0 and frontend 0.10.0 |
-| 2 | Roll the standard to Kitchen, then Fitness, then Peptides | ⬜ next |
+| 2 | Roll the standard to Kitchen, then Fitness, then Peptides | 🟨 Kitchen built and tested locally; deploy scheduled for 3:09 PM Central |
 | 3 | Options platform alignment (Node 24, target versions) | ⬜ |
 | 4 | Finish the Options backend split (slices 9m1 to 9m4) | ⬜ |
 | 5 | TypeScript and Tailwind in Options, as files are touched (ongoing) | ⬜ |
@@ -99,13 +99,13 @@ Done when: app-shell builds and passes on the target table, new versions are pub
 
 **Result:** merged as app-shell PR 1 (GitHub checks green on Node 24 with Postgres) and published: `@hollandjaym-git/app-shell-backend` **0.9.0**, `@hollandjaym-git/app-shell-frontend` **0.10.0**. Routine bumps plus Vitest 5, express-rate-limit 8, bcryptjs 3 (checked: it verifies hashes written by version 2), dotenv 18, `@simplewebauthn` 14 (one type renamed; the real WebAuthn integration tests pass). 136 tests, both reference builds and both Docker images pass on Node 24. Dependabot added. `CHANGELOG.md` in the app-shell repo lists exactly what each app must do (section "What an app does to take these"). Deliberate gaps: `@types/node` stays on 24 (see section 8), TypeScript 7 and vite-plugin-pwa 2 wait (section 5).
 
-### Step 2: roll the standard to the three apps, one at a time  ⬜
+### Step 2: roll the standard to the three apps, one at a time  🟨
 
 Order: Kitchen (the reference app), then Fitness, then Peptides. For each: bump to the target table and the new shell versions, Node 24, add Dependabot, add Vitest if missing, run the app's tests, deploy on a quiet day, check the digest.
 
 | App | Status | Gaps to close | Size |
 |---|---|---|---|
-| Kitchen | ⬜ | Node 22 to 24; add Vitest; 10 frontend files still plain JS (rest is TypeScript); backend 73 JS files; Dependabot | Medium |
+| Kitchen | 🟨 branch `stack-refresh-2026-10` (commit 1c2e141): all target versions, shell 0.9.0/0.10.0, Node 24, Vitest with 12 frontend tests, backend tests via glob (8), Dependabot, CI rewritten; checked locally (builds, tests, Docker on Node 24, login page, limiter, migrations). Deploy scheduled after close. Left over: TypeScript/Tailwind remainders are Step 5-style, not blockers. Original gaps below. | Node 22 to 24; add Vitest; 10 frontend files still plain JS (rest is TypeScript); backend 73 JS files; Dependabot | Medium |
 | Fitness | ⬜ | Node 22 to 24; add Vitest; 92 frontend files plain JS (13 TypeScript); backend 50 JS files; Dependabot; confirm no CSP violations once enforced | Medium to large |
 | Peptides | ⬜ | Already fully TypeScript and on Node 24; align versions; add a CI workflow if missing; Dependabot; drop the Capacitor `uuid` override once the CLI updates | Small |
 
