@@ -18,7 +18,7 @@ It replaces the scattered plans (`options/docs/frontend-modernization/PLAN.md`, 
 | 1 | Refresh app-shell (foundation) | 🟩 done 2026-10-19: published backend 0.9.0 and frontend 0.10.0 |
 | 2 | Roll the standard to Kitchen, then Fitness, then Peptides | 🟩 done 2026-10-19: Kitchen, Fitness and Peptides all deployed (owner sign-in checks pending for Fitness-style passkey/PIN on Peptides) |
 | 3 | Options platform alignment (Node 24, target versions) | 🟩 done 2026-10-20: deployed 7:35 AM Central, before the market opened (owner sign-in checks pending) |
-| 4 | Finish the Options backend split (slices 9m1 to 9m4) | 🟨 9m1 to 9m4 done locally (2026-10-20); deploy next (needs owner go, after market close) |
+| 4 | Finish the Options backend split (slices 9m1 to 9m4) | 🟩 done and DEPLOYED 2026-10-20 (ad7467e; owner confirmed passkey and PIN sign-in) |
 | 5 | TypeScript and Tailwind in Options, as files are touched (ongoing) | ⬜ |
 | 6 | Adopt the shared shell in Options, in stages (last; go/no-go at the start of this step) | ⬜ |
 | Backlog | Security review, branding, AI cost, billing and others (section 4) | ⬜ |
@@ -192,6 +192,7 @@ Done when: the go/no-go is recorded here, and either the staged adoption is depl
 
 | Date | Step | What was completed |
 |---|---|---|
+| 2026-10-20 | Step 4 | Slices 9m1 to 9m4 pushed and deployed (backend only, ad7467e); rollback git tag predeploy-20261020-9m4, image tag predeploy-20261020. Deployed mid-session at the owner's request. |
 | 2026-10-20 | Step 4 / 9m4 | Admin reports, passkey wiring and error handler moved out (local); server.js is now wiring only. |
 | 2026-10-20 | Step 4 / 9m3 | Small helpers moved to `lib/serverHelpers.js` (local). |
 | 2026-10-20 | Step 4 / 9m2 | `reconcileOpenPositions` moved to `lib/openPositions.js` (local). |
