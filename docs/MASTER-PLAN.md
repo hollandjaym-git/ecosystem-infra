@@ -18,7 +18,7 @@ It replaces the scattered plans (`options/docs/frontend-modernization/PLAN.md`, 
 | 1 | Refresh app-shell (foundation) | 🟩 done 2026-10-19: published backend 0.9.0 and frontend 0.10.0 |
 | 2 | Roll the standard to Kitchen, then Fitness, then Peptides | 🟩 done 2026-10-19: Kitchen, Fitness and Peptides all deployed (owner sign-in checks pending for Fitness-style passkey/PIN on Peptides) |
 | 3 | Options platform alignment (Node 24, target versions) | 🟩 done 2026-10-20: deployed 7:35 AM Central, before the market opened (owner sign-in checks pending) |
-| 4 | Finish the Options backend split (slices 9m1 to 9m4) | ⬜ next |
+| 4 | Finish the Options backend split (slices 9m1 to 9m4) | 🟨 9m1 done locally (2026-10-20); 9m2 next |
 | 5 | TypeScript and Tailwind in Options, as files are touched (ongoing) | ⬜ |
 | 6 | Adopt the shared shell in Options, in stages (last; go/no-go at the start of this step) | ⬜ |
 | Backlog | Security review, branding, AI cost, billing and others (section 4) | ⬜ |
@@ -121,13 +121,13 @@ Done when: Options is on the same table as the others and deployed.
 
 **Result:** merged as PR 15 (all four GitHub checks green) and deployed 2026-10-20 at about 7:35 AM Central (before the open; rollback tag `predeploy-20261020` on the droplet and both images). Node 24 in both Dockerfiles, CI and the security workflow (running Node 24.22 in production); `app-shell-backend` 0.9.0, bcryptjs 3, Anthropic SDK 0.135, `@simplewebauthn/browser` 14. Health 200, no errors in the log, the other three apps still 200. One expected behaviour change: passkey registration options now also offer algorithm -48 (new in `@simplewebauthn` 14; authenticators that do not support it ignore it). **Owner to do: one passkey sign-in and one PIN sign-in on Options.** Express, pg, React, Vite, router and rate-limit were already on target.
 
-### Step 4: finish the Options backend split (Phase 4)  ⬜
+### Step 4: finish the Options backend split (Phase 4)  🟨
 
 `server.js` is 899 lines. Remaining slices follow the runbook in `options/docs/phase4/` (slice command: `/phase4-slice`):
 
 | Slice | What | Status |
 |---|---|---|
-| 9m1 | CBOE weekly-options refresh route | ⬜ |
+| 9m1 | CBOE weekly-options refresh route | 🟩 done locally 2026-10-20 (commit b366c1b: 29-scenario golden, mutation 117/124 killed + 7 explained, all 7 smokes pass); committed, not pushed, not deployed |
 | 9m2 | `reconcileOpenPositions` (the risky one: used by import, sync and repair) | ⬜ |
 | 9m3 | Small helpers (DNT list, holiday seed, `runOnce`, multer instance and others) | ⬜ |
 | 9m4 | Two admin report routes, passkey wiring, final error handler (what stays is wiring only) | ⬜ |
@@ -192,6 +192,7 @@ Done when: the go/no-go is recorded here, and either the staged adoption is depl
 
 | Date | Step | What was completed |
 |---|---|---|
+| 2026-10-20 | Step 4 / 9m1 | CBOE refresh route moved to `routes/cboeRefresh.js` (local; baseline commit edbbcaf refreshes the auth snapshot for simplewebauthn 14). |
 | 2026-10-20 | Step 3 | Options deployed on Node 24 and the target versions (PR 15). |
 | 2026-10-19 | Cleanup | Cloudflare GitHub app access narrowed to `alpinepost-landing` only (it had every repo); only one Worker remains in Cloudflare. |
 | 2026-10-19 | Step 2c | Peptides deployed on the target stack; its first CI workflow, green. Step 2 complete. |
