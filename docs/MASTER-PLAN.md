@@ -18,7 +18,7 @@ It replaces the scattered plans (`options/docs/frontend-modernization/PLAN.md`, 
 | 1 | Refresh app-shell (foundation) | 🟩 done 2026-10-19: published backend 0.9.0 and frontend 0.10.0 |
 | 2 | Roll the standard to Kitchen, then Fitness, then Peptides | 🟩 done 2026-10-19: Kitchen, Fitness and Peptides all deployed (owner sign-in checks pending for Fitness-style passkey/PIN on Peptides) |
 | 3 | Options platform alignment (Node 24, target versions) | 🟩 done 2026-10-20: deployed 7:35 AM Central, before the market opened (owner sign-in checks pending) |
-| 4 | Finish the Options backend split (slices 9m1 to 9m4) | 🟨 9m1 and 9m2 done locally (2026-10-20); 9m3 next |
+| 4 | Finish the Options backend split (slices 9m1 to 9m4) | 🟨 9m1 to 9m3 done locally (2026-10-20); 9m4 next |
 | 5 | TypeScript and Tailwind in Options, as files are touched (ongoing) | ⬜ |
 | 6 | Adopt the shared shell in Options, in stages (last; go/no-go at the start of this step) | ⬜ |
 | Backlog | Security review, branding, AI cost, billing and others (section 4) | ⬜ |
@@ -129,7 +129,7 @@ Done when: Options is on the same table as the others and deployed.
 |---|---|---|
 | 9m1 | CBOE weekly-options refresh route | 🟩 done locally 2026-10-20 (commit b366c1b: 29-scenario golden, mutation 117/124 killed + 7 explained, all 7 smokes pass); committed, not pushed, not deployed |
 | 9m2 | `reconcileOpenPositions` (the risky one: used by import, sync and repair) | 🟩 done locally 2026-10-20 (commit edf7422: 20-scenario golden pins both SQL statements, 12 automatic + 26 hand-written mutants all killed, all 7 smokes pass); committed, not pushed, not deployed |
-| 9m3 | Small helpers (DNT list, holiday seed, `runOnce`, multer instance and others) | ⬜ |
+| 9m3 | Small helpers (DNT list, holiday seed, `runOnce`, multer instance and others) | 🟩 done locally 2026-10-20 (commit 6f2c68f: golden for 8 helpers, mutation 268/271 killed + 2 explained equivalents, all 7 smokes pass); committed, not pushed, not deployed |
 | 9m4 | Two admin report routes, passkey wiring, final error handler (what stays is wiring only) | ⬜ |
 
 Done when: all four are deployed, `routeTable.sh` shows identical routes, and `server.js` holds only app setup and wiring.
@@ -192,6 +192,7 @@ Done when: the go/no-go is recorded here, and either the staged adoption is depl
 
 | Date | Step | What was completed |
 |---|---|---|
+| 2026-10-20 | Step 4 / 9m3 | Small helpers moved to `lib/serverHelpers.js` (local). |
 | 2026-10-20 | Step 4 / 9m2 | `reconcileOpenPositions` moved to `lib/openPositions.js` (local). |
 | 2026-10-20 | Step 4 / 9m1 | CBOE refresh route moved to `routes/cboeRefresh.js` (local; baseline commit edbbcaf refreshes the auth snapshot for simplewebauthn 14). |
 | 2026-10-20 | Step 3 | Options deployed on Node 24 and the target versions (PR 15). |
