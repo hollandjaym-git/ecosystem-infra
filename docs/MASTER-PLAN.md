@@ -19,7 +19,7 @@ It replaces the scattered plans (`options/docs/frontend-modernization/PLAN.md`, 
 | 2 | Roll the standard to Kitchen, then Fitness, then Peptides | 🟩 done 2026-10-19: Kitchen, Fitness and Peptides all deployed (owner sign-in checks pending for Fitness-style passkey/PIN on Peptides) |
 | 3 | Options platform alignment (Node 24, target versions) | 🟩 done 2026-10-20: deployed 7:35 AM Central, before the market opened (owner sign-in checks pending) |
 | 4 | Finish the Options backend split (slices 9m1 to 9m4) | 🟩 done and DEPLOYED 2026-10-20 (ad7467e; owner confirmed passkey and PIN sign-in) |
-| 5 | TypeScript and Tailwind in Options, as files are touched (ongoing) | ⬜ |
+| 5 | TypeScript and Tailwind in Options, as files are touched (ongoing) | 🟨 started 2026-10-20: `lib/chainStrikes.ts` (chain strike window + ITM/ATM, tested) extracted from `StockLists.jsx`; the rest of `StockLists.jsx` (OptionChainPanel, about 700 lines of inline styles) is next, committed locally, not deployed |
 | 6 | Adopt the shared shell in Options, in stages (last; go/no-go at the start of this step) | ⬜ |
 | Backlog | Security review, branding, AI cost, billing and others (section 4) | ⬜ |
 
