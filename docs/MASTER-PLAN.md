@@ -17,8 +17,8 @@ It replaces the scattered plans (`options/docs/frontend-modernization/PLAN.md`, 
 | 0 | Ship what is already finished | 🟩 done 2026-10-19 (one optional item left; the digest still has to be read on Monday 2026-10-26) |
 | 1 | Refresh app-shell (foundation) | 🟩 done 2026-10-19: published backend 0.9.0 and frontend 0.10.0 |
 | 2 | Roll the standard to Kitchen, then Fitness, then Peptides | 🟩 done 2026-10-19: Kitchen, Fitness and Peptides all deployed (owner sign-in checks pending for Fitness-style passkey/PIN on Peptides) |
-| 3 | Options platform alignment (Node 24, target versions) | 🟨 built and verified locally on branch `stack-refresh-2026-10` (commit 98d31ec); deploy not done yet |
-| 4 | Finish the Options backend split (slices 9m1 to 9m4) | ⬜ |
+| 3 | Options platform alignment (Node 24, target versions) | 🟩 done 2026-10-20: deployed 7:35 AM Central, before the market opened (owner sign-in checks pending) |
+| 4 | Finish the Options backend split (slices 9m1 to 9m4) | ⬜ next |
 | 5 | TypeScript and Tailwind in Options, as files are touched (ongoing) | ⬜ |
 | 6 | Adopt the shared shell in Options, in stages (last; go/no-go at the start of this step) | ⬜ |
 | Backlog | Security review, branding, AI cost, billing and others (section 4) | ⬜ |
@@ -111,7 +111,7 @@ Order: Kitchen (the reference app), then Fitness, then Peptides. For each: bump 
 
 Done when: each app is deployed on the target table with tests and CI green, and the digest is clean.
 
-### Step 3: Options platform alignment  🟨
+### Step 3: Options platform alignment  🟩 done 2026-10-20
 
 1. **Node 20 to 24** in both Dockerfiles (urgent and small; run the backend suite and the full browser suite).
 2. Bump to the target table and the new shell backend version.
@@ -119,7 +119,7 @@ Done when: each app is deployed on the target table with tests and CI green, and
 
 Done when: Options is on the same table as the others and deployed.
 
-**Status 2026-10-19 (7-minute session):** branch `stack-refresh-2026-10`, commit 98d31ec, pushed, not merged, not deployed. Node 24 in both Dockerfiles, CI and the security workflow (actions v7); `app-shell-backend` 0.9.0, bcryptjs 3, Anthropic SDK 0.135, `@simplewebauthn/browser` 14. Checked locally: 45 backend tests, 56 frontend tests, type check, build, the Docker stack runs on Node 24.19 and answers health, `freeVars` clean, and the sign-in snapshot matches the saved baseline except one expected difference: passkey registration options now also offer algorithm -48 (new in `@simplewebauthn` 14; authenticators that do not support it ignore it). **Update (same day):** pull request 15 is open and GitHub's checks ran (audit, backend tests and secrets scan green; frontend build was the last one running when the session paused; read it first). **Left:** confirm all four checks are green, merge PR 15, rollback tag and deploy on the droplet (after market close), verify, then the owner tries one passkey and one PIN sign-in. Nothing is deployed. Express, pg, React, Vite, router and rate-limit were already on target.
+**Result:** merged as PR 15 (all four GitHub checks green) and deployed 2026-10-20 at about 7:35 AM Central (before the open; rollback tag `predeploy-20261020` on the droplet and both images). Node 24 in both Dockerfiles, CI and the security workflow (running Node 24.22 in production); `app-shell-backend` 0.9.0, bcryptjs 3, Anthropic SDK 0.135, `@simplewebauthn/browser` 14. Health 200, no errors in the log, the other three apps still 200. One expected behaviour change: passkey registration options now also offer algorithm -48 (new in `@simplewebauthn` 14; authenticators that do not support it ignore it). **Owner to do: one passkey sign-in and one PIN sign-in on Options.** Express, pg, React, Vite, router and rate-limit were already on target.
 
 ### Step 4: finish the Options backend split (Phase 4)  ⬜
 
@@ -192,6 +192,7 @@ Done when: the go/no-go is recorded here, and either the staged adoption is depl
 
 | Date | Step | What was completed |
 |---|---|---|
+| 2026-10-20 | Step 3 | Options deployed on Node 24 and the target versions (PR 15). |
 | 2026-10-19 | Cleanup | Cloudflare GitHub app access narrowed to `alpinepost-landing` only (it had every repo); only one Worker remains in Cloudflare. |
 | 2026-10-19 | Step 2c | Peptides deployed on the target stack; its first CI workflow, green. Step 2 complete. |
 | 2026-10-19 | Step 2b | Fitness deployed on the target stack (see the Fitness row); CI green with the frontend tests. |
@@ -206,6 +207,7 @@ Done when: the go/no-go is recorded here, and either the staged adoption is depl
 |---|---|---|---|
 | 2026-10-19 | 🟧 Step 0 deploys are not done by `git pull` on the droplet: the droplet's `ecosystem-infra` is a plain folder, not a clone, so the Caddyfile and digest config are copied over with a backup and a validate-then-reload | Found while preparing the deploy | Claude, noted for the owner |
 | 2026-10-19 | 🟧 Step 0 droplet changes (including the Caddy reload and the Peptides rebuild) ran at about 12:40 PM Central, during trading hours, not after the close | The owner said "go ahead and run this now" after being told the Caddy reload touches the path Options shares | Owner |
+| 2026-10-20 | 🟧 Step 3 was deployed at 7:35 AM Central, before the market opened, rather than "after the close" | The owner chose to deploy before the open when offered the choice (it was a Tuesday morning; the deploy takes about 6 minutes) | Owner |
 | 2026-10-19 | 🟧 The Step 0 "remove `options` from the Cloudflare app" item became "narrow the app to the one repo it needs", because the app had access to all repositories, not a list | The settings page showed All repositories | Owner, with Claude |
 | 2026-10-19 | 🟧 Peptides: a first CI run reported green with every real step skipped (no `NPM_TOKEN` secret). Caught by reading the step results, not the green mark; re-run after the secret was added and passed for real | Found during Step 2c | Claude; owner added the secret |
 | 2026-10-19 | 🟧 Kitchen's CI had never actually run: the repo had no `NPM_TOKEN` secret, so it could not install the private shell packages. The plan table listed Kitchen CI as working; that was wrong. Peptides has the same gap (no secret, no workflow) and is handled in Step 2c. Fitness and Options already had the secret | Found during Step 2a | Owner added the secret to kitchen on 2026-10-19; CI is now green |
