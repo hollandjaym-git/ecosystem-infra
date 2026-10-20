@@ -19,7 +19,7 @@ It replaces the scattered plans (`options/docs/frontend-modernization/PLAN.md`, 
 | 2 | Roll the standard to Kitchen, then Fitness, then Peptides | 🟩 done 2026-10-19: Kitchen, Fitness and Peptides all deployed (owner sign-in checks pending for Fitness-style passkey/PIN on Peptides) |
 | 3 | Options platform alignment (Node 24, target versions) | 🟩 done 2026-10-20: deployed 7:35 AM Central, before the market opened (owner sign-in checks pending) |
 | 4 | Finish the Options backend split (slices 9m1 to 9m4) | 🟩 done and DEPLOYED 2026-10-20 (ad7467e; owner confirmed passkey and PIN sign-in) |
-| 5 | TypeScript and Tailwind in Options, as files are touched (ongoing) | 🟨 started 2026-10-20: `lib/chainStrikes.ts` and `components/OptionChainPanel.tsx` (about 1,000 lines) and `components/StockListRow.tsx` (about 180 lines), both strict with 0 type errors, extracted from `StockLists.jsx`, which is now `StockLists.tsx` (about 840 lines, strict, 0 type errors), so the whole Lists area is TypeScript; also `lib/planner.ts`, `lib/shareLots.ts` and `lib/exportCsv.ts` (next: the other `lib/` files `income`, `accountValue`, `tradeViews`, then the hooks); styles are still inline (Tailwind conversion of the panel is next); committed locally, not deployed |
+| 5 | TypeScript and Tailwind in Options, as files are touched (ongoing) | 🟨 started 2026-10-20: `lib/chainStrikes.ts` and `components/OptionChainPanel.tsx` (about 1,000 lines) and `components/StockListRow.tsx` (about 180 lines), both strict with 0 type errors, extracted from `StockLists.jsx`, which is now `StockLists.tsx` (about 840 lines, strict, 0 type errors), so the whole Lists area is TypeScript; also `lib/planner.ts`, `lib/shareLots.ts` and `lib/exportCsv.ts`; 2026-10-20 overnight batch DEPLOYED (a1ee6e3, frontend only): all remaining helper and hook files are strict TypeScript (`utils/dnd`, `dialog`, `passkeys`, all 13 hooks, `lib/tradeViews`, `income`, `accountValue`), one commit per file, each passing tsc, vitest, build and the 109 Playwright tests. Next: the components (`components/` and `app/`, 58 JS/JSX files left, about 27,000 lines, leaf files first) and `App.jsx`; styles are still inline (Tailwind conversion of the panel is next) |
 | 6 | Adopt the shared shell in Options, in stages (last; go/no-go at the start of this step) | ⬜ |
 | Backlog | Security review, branding, AI cost, billing and others (section 4) | ⬜ |
 
@@ -164,6 +164,7 @@ Done when: the go/no-go is recorded here, and either the staged adoption is depl
 | "Set Default" account review | undecided | When the owner wants. |
 | SnapTrade "add brokerage" notes for users | documentation | Any time. |
 | GKTW | parked | Skip in cross-app audits. |
+| Unmatched Planner-stub review (Options) | built and committed on branch `claude/unmatched-stub-review` (4ace4fb), NOT pushed or deployed; the new SQL has not yet run against a real Postgres. Why: on 2026-10-20 a Planner row (LASR 40 call, expiry 10/23) was never replaced by the real fill (expiry 10/30) because import matching needs an exact expiry, overstating prod income by $375; the stale row and a never-executed IONQ in-app roll were deleted by hand | Test an import on the local docker stack, then deploy on its own (backend change). |
 
 ---
 
@@ -192,6 +193,8 @@ Done when: the go/no-go is recorded here, and either the staged adoption is depl
 
 | Date | Step | What was completed |
 |---|---|---|
+| 2026-10-20 | Step 5 | All helper and hook files converted to strict TypeScript (19 files, one commit each, all four gates green) and DEPLOYED frontend-only at a1ee6e3. |
+| 2026-10-20 | Data fix | Production vs local mismatch of $525.01 in the Oct 19 week traced to a stale Planner row (LASR) and a never-executed in-app roll (IONQ); both deleted from prod with backups; unmatched-stub review feature built on a branch (see backlog). |
 | 2026-10-20 | Step 4 | Slices 9m1 to 9m4 pushed and deployed (backend only, ad7467e); rollback git tag predeploy-20261020-9m4, image tag predeploy-20261020. Deployed mid-session at the owner's request. |
 | 2026-10-20 | Step 4 / 9m4 | Admin reports, passkey wiring and error handler moved out (local); server.js is now wiring only. |
 | 2026-10-20 | Step 4 / 9m3 | Small helpers moved to `lib/serverHelpers.js` (local). |
