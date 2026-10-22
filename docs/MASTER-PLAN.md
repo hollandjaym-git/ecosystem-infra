@@ -6,7 +6,7 @@ It replaces the scattered plans (`options/docs/frontend-modernization/PLAN.md`, 
 
 **Legend**  🟩 done and verified · 🟨 in progress · ⬜ not started · 🟧 deviates from the plan (always explained in section 8) · 🟥 blocked
 
-**Last updated:** 2026-10-19. Owner decisions are recorded in section 5; changes to the plan are logged in section 8.
+**Last updated:** 2026-10-22. Owner decisions are recorded in section 5; changes to the plan are logged in section 8.
 
 ---
 
@@ -19,7 +19,7 @@ It replaces the scattered plans (`options/docs/frontend-modernization/PLAN.md`, 
 | 2 | Roll the standard to Kitchen, then Fitness, then Peptides | 🟩 done 2026-10-19: Kitchen, Fitness and Peptides all deployed (owner sign-in checks pending for Fitness-style passkey/PIN on Peptides) |
 | 3 | Options platform alignment (Node 24, target versions) | 🟩 done 2026-10-20: deployed 7:35 AM Central, before the market opened (owner confirmed passkey and PIN sign-in 2026-10-20) |
 | 4 | Finish the Options backend split (slices 9m1 to 9m4) | 🟩 done and DEPLOYED 2026-10-20 (ad7467e; owner confirmed passkey and PIN sign-in) |
-| 5 | TypeScript and Tailwind in Options, as files are touched (ongoing) | 🟨 TypeScript conversion COMPLETE, DEPLOYED and owner click-through confirmed 2026-10-21 (c59ba3d, frontend only): every frontend source file is strict TypeScript (87 .ts/.tsx files) except the two service-worker files, which stay JavaScript on purpose; each file was its own commit with tsc, vitest, build and the 109 Playwright tests green. Callbacks over forwarded props are loosely typed (`any`/open records) in the big screens (Screener, Dashboard, Statistics, Charts, Calculators, App, the settings tabs); tightening those is optional follow-up as files are touched. Tailwind conversion of the inline styles (about 4,500) has not started and is next Tailwind half: phases 1 to 3 done locally on branch `tailwind-phase1` (worktree `options-tw`, not pushed or deployed): codemod, computed-style proof (93 scenarios, 37,533 elements, all identical) and 12 files converted (Shared, MoveSparkline, ClosePositionModal, Modals, Journal, Campaigns, Planner, StockLists, StockListRow, Positions, OptionChainPanel); next phase 4 (the big screens). |
+| 5 | TypeScript and Tailwind in Options | 🟨 **TypeScript half 🟩 done and deployed 2026-10-21** (c59ba3d, 87 .ts/.tsx files, owner click-through OK). **Tailwind half 🟨 in progress:** phases 1 to 3 done locally on branch `tailwind-phase1` (worktree `options-tw`, not pushed or deployed): 12 files converted, proof identical on 93 scenarios; next phase 4 (the big screens). Details in Step 5 below |
 | 6 | Adopt the shared shell in Options, in stages (last; go/no-go at the start of this step) | ⬜ |
 | Backlog | Security review, branding, AI cost, billing and others (section 4) | ⬜ |
 
@@ -29,12 +29,11 @@ Already finished and deployed (do not redo) 🟩: Options frontend Stages 0 to 4
 
 ## 1. Where we are, in plain words
 
-- **Options is modern and in production.** React 19, Vite 8, Tailwind 4, TypeScript 6 tooling, React Router 7, tests. Every screen has its own URL. All of it is deployed (2026-10-19).
-- **Two things in Options are half done:** the backend split (`server.js` is 899 lines; four small slices left) and TypeScript/Tailwind *in the code* (tools installed; code mostly plain JavaScript with inline styles).
-- **app-shell is not current.** Its lockfiles are behind its own version ranges, it runs on different Node versions from the apps, and it has not adopted several newer major versions.
-- **The other three apps are not on one standard either:** different Node versions, test setups, automatic dependency updates, and amounts of TypeScript.
-- **The shared-shell trial for Options worked** (header, menus, Community fit). It is parked on branch `stage5-trial` (folder `options-stage5`), uncommitted. Per the owner, the shell adoption now comes last (Step 6).
-- **Some finished work is not live yet** (Step 0).
+- **Options is modern, typed and in production.** React 19, Vite 8, Tailwind 4, TypeScript 6 (every source file is strict TypeScript except the two service-worker files, deployed 2026-10-21), React Router 7, Vitest and Playwright. The backend runs on Node 24 and `server.js` is now wiring only (Step 4, deployed 2026-10-20).
+- **One thing in Options is still in progress:** the Tailwind half of Step 5. The 4,640 inline styles are being converted by a codemod with a computed-style proof; 12 files are done on a local branch (about 700 styles), about 3,950 remain (see Step 5).
+- **The shared foundation is current.** app-shell 0.9.0 backend / 0.10.0 frontend are published, and Kitchen, Fitness, Peptides and Options all run Node 24 on the same standard (Steps 1 to 3).
+- **The shared-shell trial for Options worked** (header, menus, Community fit). It is parked on branch `stage5-trial` (folder `options-stage5`), uncommitted. Per the owner, the shell adoption comes last (Step 6, with a go/no-go decision).
+- **Not live yet:** only the Tailwind work on branch `tailwind-phase1` (local, not pushed).
 
 The reason it felt unfinished: the next layer kept starting before the last one closed. The fix is a fixed order, a "done when" line for each step, and this one status page.
 
@@ -121,24 +120,49 @@ Done when: Options is on the same table as the others and deployed.
 
 **Result:** merged as PR 15 (all four GitHub checks green) and deployed 2026-10-20 at about 7:35 AM Central (before the open; rollback tag `predeploy-20261020` on the droplet and both images). Node 24 in both Dockerfiles, CI and the security workflow (running Node 24.22 in production); `app-shell-backend` 0.9.0, bcryptjs 3, Anthropic SDK 0.135, `@simplewebauthn/browser` 14. Health 200, no errors in the log, the other three apps still 200. One expected behaviour change: passkey registration options now also offer algorithm -48 (new in `@simplewebauthn` 14; authenticators that do not support it ignore it). **Owner to do: one passkey sign-in and one PIN sign-in on Options.** Express, pg, React, Vite, router and rate-limit were already on target.
 
-### Step 4: finish the Options backend split (Phase 4)  🟨
+### Step 4: finish the Options backend split (Phase 4)  🟩 done and deployed 2026-10-20
 
-`server.js` is 899 lines. Remaining slices follow the runbook in `options/docs/phase4/` (slice command: `/phase4-slice`):
+`server.js` was 899 lines and is now wiring only. The slices followed the runbook in `options/docs/phase4/` (slice command: `/phase4-slice`):
 
 | Slice | What | Status |
 |---|---|---|
-| 9m1 | CBOE weekly-options refresh route | 🟩 done locally 2026-10-20 (commit b366c1b: 29-scenario golden, mutation 117/124 killed + 7 explained, all 7 smokes pass); committed, not pushed, not deployed |
-| 9m2 | `reconcileOpenPositions` (the risky one: used by import, sync and repair) | 🟩 done locally 2026-10-20 (commit edf7422: 20-scenario golden pins both SQL statements, 12 automatic + 26 hand-written mutants all killed, all 7 smokes pass); committed, not pushed, not deployed |
-| 9m3 | Small helpers (DNT list, holiday seed, `runOnce`, multer instance and others) | 🟩 done locally 2026-10-20 (commit 6f2c68f: golden for 8 helpers, mutation 268/271 killed + 2 explained equivalents, all 7 smokes pass); committed, not pushed, not deployed |
-| 9m4 | Two admin report routes, passkey wiring, final error handler (what stays is wiring only) | 🟩 done locally 2026-10-20 (commit ad7467e: 105 mutants, 103 killed + 1 equivalent, all 7 smokes pass); committed, not pushed, not deployed |
+| 9m1 | CBOE weekly-options refresh route | 🟩 done locally 2026-10-20 (commit b366c1b: 29-scenario golden, mutation 117/124 killed + 7 explained, all 7 smokes pass); deployed 2026-10-20 together with 9m4 (ad7467e) |
+| 9m2 | `reconcileOpenPositions` (the risky one: used by import, sync and repair) | 🟩 done locally 2026-10-20 (commit edf7422: 20-scenario golden pins both SQL statements, 12 automatic + 26 hand-written mutants all killed, all 7 smokes pass); deployed 2026-10-20 together with 9m4 (ad7467e) |
+| 9m3 | Small helpers (DNT list, holiday seed, `runOnce`, multer instance and others) | 🟩 done locally 2026-10-20 (commit 6f2c68f: golden for 8 helpers, mutation 268/271 killed + 2 explained equivalents, all 7 smokes pass); deployed 2026-10-20 together with 9m4 (ad7467e) |
+| 9m4 | Two admin report routes, passkey wiring, final error handler (what stays is wiring only) | 🟩 done locally 2026-10-20 (commit ad7467e: 105 mutants, 103 killed + 1 equivalent, all 7 smokes pass); deployed 2026-10-20 together with 9m4 (ad7467e) |
 
-Done when: all four are deployed, `routeTable.sh` shows identical routes, and `server.js` holds only app setup and wiring.
+Done when: all four are deployed, `routeTable.sh` shows identical routes, and `server.js` holds only app setup and wiring. **Met 2026-10-20** (284 routes identical, owner confirmed passkey and PIN sign-in).
 
-### Step 5: TypeScript and Tailwind in Options, as files are touched  ⬜ (ongoing)
+### Step 5: TypeScript and Tailwind in Options  🟨 (TypeScript 🟩, Tailwind in progress)
 
-Today 10 of 93 frontend files (about 1,400 of 33,500 lines) are TypeScript, with about 4,500 inline styles and no Tailwind classes. No big-bang. Rules: a file touched for any reason is converted to TypeScript and its styles move to Tailwind as part of that change; new files are TypeScript from the start; convert leaf files first (dialogs, drag-and-drop, passkeys, then leaf components), big components last.
+**Plan change (see section 8):** this step was first written as "convert a file when it is touched". It was done as planned batches instead, with a safety proof for each batch, because waiting for files to be touched would never finish.
 
-Done when: nothing is "in progress"; what remains is a tracked list that shrinks as files are touched.
+**5a. TypeScript  🟩 done and deployed 2026-10-21 (c59ba3d).** Every frontend source file is strict TypeScript (87 `.ts`/`.tsx` files) except `service-worker.js` and `serviceWorkerRegistration.js`, which stay JavaScript on purpose. Order followed: strike logic and the chain panel, the Lists area, `lib/` helpers, hooks and utils, then components in batches, then `App` and the entry file. Each file was its own commit with `tsc`, Vitest, the build and the 109 Playwright tests green. Callbacks over forwarded props in the large screens are loosely typed (`any` or open records); tightening them is optional follow-up. Done when: met.
+
+**5b. Tailwind (inline styles to utility classes)  🟨 in progress.** Start: 4,640 static-or-dynamic `style={{...}}` objects in about 60 files and 73 `className` uses. Tailwind 4 is installed (theme and utilities only, no reset; the colour tokens map to utilities such as `bg-panel`, `text-muted`).
+
+How (approved by the owner 2026-10-21):
+- **Codemod, not hand edits:** `frontend/scripts/inlineStylesToTailwind.mjs` rewrites static inline styles on plain DOM tags into **exact** Tailwind classes (arbitrary values such as `py-[5px]`, `[font-family:'Space_Mono',_monospace]`; nothing is snapped to Tailwind's scale, so nothing can move by a pixel). It leaves alone anything dynamic (ternaries, variables, spreads), styles on components, a style next to a dynamic `className`, and a shorthand with its longhand in one object.
+- **Proof that nothing changed:** `frontend/e2e/computed.spec.js` records the full computed style of every element on every screen, in both themes (`COMPUTED_OUT=<dir>`), and `frontend/scripts/compareComputed.mjs` compares two recordings; Tailwind's own `--tw-*` variables are ignored. It currently covers **93 scenarios and about 37,500 elements**: all 24 screens in both themes, the sign-in page, the Add Trade, Edit Trade, Profile and Close Position dialogs (close, roll and assign modes), Positions in all four views, Journal by week, an opened campaign, the Planner page, Lists with items and a second list, and the option chain panel (puts, calls, both, roll mode). States the recorded account does not have (an open position, planner rows, list items, an option chain) are made up for these runs only. A deliberate 1 px change is caught on 96 elements, so the check can fail.
+- **Per file:** one commit, only if `tsc`, the 66 unit tests, the build, the 109 Playwright tests and the computed-style comparison are all clean.
+- **Local only** on branch `tailwind-phase1` (worktree `C:\Users\jayho\GitHub\options-tw`) until the owner says to push and deploy. Nothing has been pushed or deployed.
+
+| Phase | What | Status |
+|---|---|---|
+| 1 | Codemod, computed-style proof, `Shared.tsx` | 🟩 done 2026-10-21 (31 of 49 styles converted; identical on 49 screens) |
+| 2 | Small shared files: `MoveSparkline`, `ClosePositionModal`, `Modals` (the proof was first extended to open the dialogs and an open position) | 🟩 done 2026-10-22 (identical on 65 scenarios) |
+| 3 | Mid-size screens: `StockListRow`, `Journal`, `Campaigns`, `Planner`, `StockLists`, `Positions`, `OptionChainPanel` (the proof was first extended to the position views, planner, lists and the chain panel) | 🟩 done 2026-10-22 (identical on 93 scenarios, head 313e397) |
+| 4 | Big screens: `Calculators` (376 styles), `AccountsSettings` (320), `Statistics` (307), `AlertsSettings` (237), `Dashboard` (234), `Charts` (214), `Screener` (212), `DataSettings`, `Auth`, `Forum`, `Advisors`, `Campaigns` leftovers, `App.tsx` and the rest; extend the proof first for any state it does not render | ⬜ next |
+| 5 | The dynamic styles (about 560 with ternaries or computed values): turn them into class conditionals, and turn hover handlers that set styles into `hover:` variants. The only phase that needs judgment | ⬜ |
+| 6 | Guard: a check that fails the build when a new static inline style is added, so the count can only go down; then the deploy of everything above (frontend only, owner's go, after the close, with a click-through) | ⬜ |
+
+Progress: about 700 of 4,640 inline styles converted (12 files); about 3,950 remain.
+
+Found along the way: (1) the proof caught a codemod bug, `background: none` on a `<button>` must also reset the grey default colour (there is no reset layer) and as an arbitrary property the minifier rewrote it to `0 0`; the codemod now emits `bg-none bg-transparent`. (2) A `vite preview` left running on port 4173 by another checkout was being reused silently by Playwright, so some earlier test runs could have hit the wrong build; Playwright now takes `E2E_PORT` (default 4173) and the final TypeScript code was re-verified on a clean port. (3) Under load a chain scenario once recorded the loading state; the scenarios now wait for the chain rows.
+
+Not part of this step unless the owner asks: replacing arbitrary values with Tailwind's scale (a visible, optional pass), and making the roughly 2,800 old hard-coded hex colours follow the light theme (this changes how things look, so it would be a separate, announced pass).
+
+Done when: the only inline styles left are truly dynamic ones (a tracked count, target under about 300), the guard is in place, and everything is deployed and clicked through.
 
 ### Step 6: adopt the shared shell in Options, in stages (last)  ⬜
 
@@ -193,6 +217,7 @@ Done when: the go/no-go is recorded here, and either the staged adoption is depl
 
 | Date | Step | What was completed |
 |---|---|---|
+| 2026-10-22 | Step 5 (Tailwind) | Phases 1 to 3 done locally on `tailwind-phase1` (not pushed): codemod, computed-style proof (93 scenarios, about 37,500 elements, all identical) and 12 files converted (Shared, MoveSparkline, ClosePositionModal, Modals, Journal, Campaigns, Planner, StockLists, StockListRow, Positions, OptionChainPanel). |
 | 2026-10-21 | Step 5 | TypeScript conversion finished: the last 9 files (Screener, Advisors, Dashboard, AccountsSettings, Statistics, Charts, Calculators, App, index) converted and DEPLOYED frontend-only at c59ba3d. Only Tailwind remains for Step 5. |
 | 2026-10-20 | Step 5 | Five component batches (49 files up to 1,190 lines) converted to strict TypeScript and DEPLOYED frontend-only (fcc4d87, 4df896c, f7aa7e9, 1d0696c, 7366fd0). |
 | 2026-10-20 | Step 5 | All helper and hook files converted to strict TypeScript (19 files, one commit each, all four gates green) and DEPLOYED frontend-only at a1ee6e3. |
@@ -215,6 +240,8 @@ Done when: the go/no-go is recorded here, and either the staged adoption is depl
 
 | Date | What changed | Why | Decided by |
 |---|---|---|---|
+| 2026-10-22 | 🟧 Step 5 changed from "convert a file when it is touched" to planned batches: TypeScript by file groups, Tailwind by a codemod with a computed-style proof, phase by phase | Waiting for files to be touched would never finish; a proof per batch makes bulk conversion safe | Owner approved the Tailwind plan 2026-10-21 |
+| 2026-10-22 | 🟧 Playwright runs on port 4173 may have hit another checkout's leftover preview server, so some earlier "109 passed" results could have tested a stale build | Found while building the Tailwind proof; Playwright now uses `E2E_PORT`, and the final TypeScript code (c59ba3d) passed on a clean port | Claude, noted for the owner |
 | 2026-10-21 | 🟧 The overnight Step 5 run (helpers, hooks, then all components, 87 files) was briefed as local-only on a branch with no push or deploy, but it pushed and deployed frontend-only batches (a1ee6e3, then the component batches up to c59ba3d) and also built the Planner-stub review branch. Each file still passed tsc, vitest, build and the 109 Playwright tests before its commit | Its own transcript shows follow-up messages telling it to push, deploy and update this plan; the brief had not allowed that, and the owner has since clicked through the app signed in and found nothing wrong | Owner (via that session), Claude noted it |
 | 2026-10-19 | 🟧 Step 0 deploys are not done by `git pull` on the droplet: the droplet's `ecosystem-infra` is a plain folder, not a clone, so the Caddyfile and digest config are copied over with a backup and a validate-then-reload | Found while preparing the deploy | Claude, noted for the owner |
 | 2026-10-19 | 🟧 Step 0 droplet changes (including the Caddy reload and the Peptides rebuild) ran at about 12:40 PM Central, during trading hours, not after the close | The owner said "go ahead and run this now" after being told the Caddy reload touches the path Options shares | Owner |
