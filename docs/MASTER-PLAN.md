@@ -20,7 +20,7 @@ It replaces the scattered plans (`options/docs/frontend-modernization/PLAN.md`, 
 | 3 | Options platform alignment (Node 24, target versions) | 🟩 done 2026-10-20: deployed 7:35 AM Central, before the market opened (owner confirmed passkey and PIN sign-in 2026-10-20) |
 | 4 | Finish the Options backend split (slices 9m1 to 9m4) | 🟩 done and DEPLOYED 2026-10-20 (ad7467e; owner confirmed passkey and PIN sign-in) |
 | 5 | TypeScript and Tailwind in Options | 🟩 **done and deployed.** TypeScript: 2026-10-21 (c59ba3d, 87 .ts/.tsx files). Tailwind: phases 1 to 4 on 2026-10-22 (2304d4e) and phases 5 and 6 on 2026-10-23 (3e1585f), frontend only; every static inline style is a class (4,640 style objects at the start, `style=` attributes 1,791 to 820 after the second codemod); what is left is the 820 data-driven or hand-written ones, optional to convert later; the inline-style guard runs in CI; the owner clicked through the local build and production |
-| 6 | Adopt the shared shell in Options, in stages (last; go/no-go at the start of this step) | 🟨 **GO for stage 6a (shell chrome only), decided 2026-10-23**; the move is planned for the weekend of 2026-10-24/25 (frontend only, no sign-out because the token is mirrored; rollback tag first). Community (6b), the sign-in page, passkeys and Profile stay Options' own for now. Branch `shell-trial-6a` (worktree `options-shell`) holds the work; not yet merged, pushed or deployed |
+| 6 | Adopt the shared shell in Options, in stages (last; go/no-go at the start of this step) | 🟨 **GO for stage 6a (shell chrome only), decided 2026-10-23.** Prep is being done now on branch `shell-6a` (worktree `options-shell`, local only, not merged, pushed or deployed). **Go-live date not set:** the owner may be out of town this weekend, and the move needs the owner free to test the iPad and phone, so it happens on the next off-trading day the owner picks (see the go-live plan in Step 6). Community (6b), the sign-in page, passkeys and Profile stay Options' own for now |
 | Backlog | Security review, branding, AI cost, billing and others (section 4) | ⬜ |
 
 Already finished and deployed (do not redo) 🟩: Options frontend Stages 0 to 4 (Playwright safety net, Vite 8 + React 19, Tailwind 4 installed, TypeScript 6 + Vitest, `App.jsx` split from 5,474 to 2,299 lines, router with URLs), the planner capital fix (panel and page share one calculation), the digest history table and viewer, Dependabot PRs merged (CI actions and backend packages incl. Anthropic SDK 0.134), the weekly-digest diagnosis, Phase 4 slices 1 to 9l4, Options moved off the old landing page.
@@ -170,12 +170,36 @@ Not part of this step unless the owner asks: replacing arbitrary values with Tai
 
 Done when: the only inline styles left are truly dynamic ones (a tracked count), the guard is in place, and everything is deployed and clicked through. **Met 2026-10-23:** the guard is in CI (baseline 820), everything is deployed, and the owner clicked through production.
 
-### Step 6: adopt the shared shell in Options, in stages (last)  ⬜
+### Step 6: adopt the shared shell in Options, in stages (last)  🟨 go for stage 6a, go-live date to be set
 
 Owner decision 2026-10-19: adopt in stages, but **only after the underpinnings (Steps 0 to 4) are done**, and the owner is not yet sure about adopting at all. So Step 6 begins with a go/no-go, using `options/docs/frontend-modernization/STAGE5-DECISION.md` (on the trial branch) and the real state of the shell after Step 1.
 
 - **If go:** stage 6a shell chrome (header, menus, drawer, dialogs); stage 6b Community. Keep User Management, Profile and sign-in as Options' own until each is checked. First, close the gaps the trial found: `/auth/me` answers `{ user }` as well as the bare user (compat), forum routes aliased as `/community/*`, `/me/prefs` route, a login-page branding slot in the shell, and a way for shell pages to point at an existing backend. A one-time sign-out for everyone happens when the token key changes; choose a quiet day.
 - **If no-go:** close the branch, record it here, and Options keeps its own UI.
+
+**Decision 2026-10-23: GO for stage 6a only** (the shell's top bar, menus, drawer, phone bottom bar and dialogs around Options' own screens). The owner saw a local trial and asked for Undo to be hidden, Sign out to live only in the shell menu, and the header to fit; those are done. Stages 6b (Community) and later (sign-in page, passkeys, Profile) are separate, each on its own quiet day.
+
+**What stage 6a changes for users:** a new header and menu (same menus as today: Dashboard, Community, Analytics, Journal, Tools, Research, Settings, Admin), a phone drawer and bottom bar from the shell, the account picker, Import CSV (icon on narrower windows) and planner button in the header, Undo hidden, Sign out in the menu. **Nobody is signed out:** the move mirrors Options' token into the shell's token key (`bridge.ts`), so existing sessions, including phones, keep working. No backend change. Frontend-only deploy.
+
+**Prep (done on the branch, nothing deployed; status below):**
+1. Rebase onto master (drops the ticker-dialog commit, already deployed as cb39d91). Done.
+2. The shell is the default build; `VITE_SHELL=0` builds the old header (the rollback switch); folder renamed `src/shell`. Done.
+3. Playwright in shell mode: the first run in shell mode failed only the two tests that check the old header (`chrome.spec.js`: phone bottom bar, planner and undo button), and the visual and computed baselines differ because the header changed. To do: rewrite those two tests for the shell, record fixtures for the shell's own API calls, regenerate the visual baselines for the owner to approve, keep the computed-style proof for the pages themselves.
+4. CI: the frontend job installs a private package, so it needs the `NPM_TOKEN` secret and the GitHub Packages registry line (as the backend job has). To do.
+5. Droplet build: the frontend image build gets the existing `/home/deploy/options/.npmrc` as a BuildKit secret (already in the branch's compose file). To check on the droplet before the deploy.
+6. CLAUDE.md and this plan describe the shell. To do.
+
+**Go-live (on a day the owner picks, off-trading day, owner free to test):**
+1. Pre-flight: master unchanged since the rebase (rebase again if not), all checks green, owner approves the new visual baselines.
+2. Merge the branch into master, push, wait for CI.
+3. On the droplet: rollback git tag and image tag `predeploy-<date>-shell`, pull, build the frontend (with the token secret), restart the frontend container only; verify health and that the site answers.
+4. Owner tests: desktop (existing session shows the shell header without a new sign-in), then iPad and phone (the installed apps pick up the new build through the update banner; if a device still shows the old build, unregister the service worker or use the menu's Refresh).
+5. Rollback if clearly wrong: restore the previous image tag and restart the frontend (about a minute), or rebuild with `VITE_SHELL=0`.
+6. A second day (or the same evening) kept free for fixes found on the iPad and phone; no deploy right before a trading day unless the owner has tested.
+7. Tell the other eight users beforehand that the header and menu change.
+
+**Known limits:** the shell is designed for a wider header than Options' old one, so below about 1100 px the top menu is tight (the menu is always available through the hamburger); hover and focus states of the old header are gone; the menu entries are a fixed list except for the CSP Scorecard flag; the iPad and phone behaviour is untested until production.
+
 
 Done when: the go/no-go is recorded here, and either the staged adoption is deployed or the branch is closed.
 
@@ -223,7 +247,7 @@ Done when: the go/no-go is recorded here, and either the staged adoption is depl
 
 | Date | Step | What was completed |
 |---|---|---|
-| 2026-10-23 | Step 6 | Go/no-go decided: GO for stage 6a only. Weekend plan: prep Friday night and Saturday morning (rebase the trial onto master, make the shell permanent behind a build switch, CI and Docker token for the private package, Playwright in shell mode, regenerate the visual baselines for the owner to approve), deploy Saturday morning frontend-only with rollback tags, owner tests desktop, iPad and phone, Sunday for fixes. Undo stays hidden. Header fits from 1100 px. |
+| 2026-10-23 | Step 6 | Go/no-go decided: GO for stage 6a only (shell chrome). Local prep under way on branch `shell-6a`; the go-live date is not set (the owner may be away this weekend and must be free to test the iPad and phone). Undo stays hidden, Sign out in the menu, header fits from 1100 px. Full go-live plan in Step 6. |
 | 2026-10-23 | Options UI | One shared frame for all ticker dialogs (`components/TickerDialog.tsx`): the chain, History and chart dialogs are now the same size on every tab and screen, and the chart dialog's double scroll bar (outer wrapper plus panel body) is gone. Pushed and DEPLOYED, frontend only (cb39d91, about 3:50 PM Central after the close; rollback tags `predeploy-20261023-dlg`; CI green). Developed on the stage 6a trial branch but shipped on its own. |
 | 2026-10-23 | Step 6 | Local-only stage 6a trial built on current master (TypeScript and Tailwind): the shell's top bar, drawer and bottom bar around Options, Options' account picker, Import CSV, planner and undo in the shell's header slots; token bridge and /auth/me shim instead of backend changes; Community and sign-in untouched. Branch `shell-trial-6a`, not pushed or deployed; local Docker on localhost:3000 runs it for the owner to look at. |
 | 2026-10-23 | Step 5 (Tailwind) | Phases 5 and 6 pushed and DEPLOYED, frontend only (3e1585f, 108 commits fast-forwarded into master, about 2:30 PM Central; rollback tags `predeploy-20261023-tw5` for git and the image; CI green including the new inline-style guard; site answers 200, new stylesheet in the container). Deployed during market hours on the owner's explicit instruction (see section 8). The owner then clicked through production: fine. |
