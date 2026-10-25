@@ -16,6 +16,7 @@
 	@peptides host peptides.alpinepost.app
 	@gktw     host gktw.alpinepost.app
 	@kitchen  host kitchen.alpinepost.app
+	@budget   host budget.alpinepost.app
 
 	# ---- options-journal (options.alpinepost.app, + legacy domain during transition) ----
 	handle @app {
@@ -134,6 +135,23 @@
 			flush_interval -1
 		}
 		reverse_proxy kitchen-web:80
+	}
+
+	# ---- budget (household finances; the strictest block here) ----
+	# Plaid Link (phase 2) loads its script and iframe from cdn.plaid.com and talks to *.plaid.com; nothing else
+	# third-party is allowed. HSTS preload-ready, no camera/mic/location, never framed, no referrer to other sites.
+	handle @budget {
+		header {
+			Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+			X-Content-Type-Options "nosniff"
+			Referrer-Policy "no-referrer"
+			Cross-Origin-Opener-Policy "same-origin"
+			Cross-Origin-Resource-Policy "same-origin"
+			Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+			Content-Security-Policy "default-src 'self'; script-src 'self' https://cdn.plaid.com; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob: https://*.plaid.com; connect-src 'self' https://*.plaid.com; frame-src https://cdn.plaid.com; worker-src 'self'; manifest-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+			-Server
+		}
+		reverse_proxy budget-web:80
 	}
 
 	# ---- apex -> options ----
