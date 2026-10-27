@@ -48,3 +48,11 @@ droplet or cron is down; in that case the apps would be down too, which you'd no
 
 ## Tuning
 Thresholds are in `digest.py` (e.g. `failed >= 30` warns). Add an app by adding a block to `config.json`.
+
+## CVE watch (`cve_watch.py`) — same-day advisories
+Separate from the weekly digest. Runs every 4 hours (`17 */4 * * *`), silent unless something is new:
+Node runtime per container vs the newest release on its major line (security releases and EOL majors are 🔴),
+every `package-lock.json` against OSV (HIGH/CRITICAL on prod deps page; moderate/low only counted), and PHP
+(FYI only while nothing here runs PHP). A finding alerts once, reminds after 3 days, and reports "Cleared" when fixed.
+`--status` prints open items, `--dry-run` shows the message without sending/saving. Patching is manual by design:
+reply "patch" in Claude Code (rebuild with `--pull`, `npm audit fix`, test, commit, deploy on your OK).
