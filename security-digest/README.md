@@ -12,7 +12,7 @@ containers, nothing listening. It reads counts and states, never tokens, PINs or
 | Public site | up, security headers, CORS closed to foreign origins, unauthenticated passkey route returns 401, TLS expiry |
 | Containers | running, restart loops |
 | Server | disk, memory, pending security updates, reboot required, **only ports 22/80/443 exposed**, SSH failure noise, `.env` modes |
-| Fitness CSP | violation reports from the report-only policy (0 for a week = safe to enforce) |
+| Fitness CSP | violation reports from the enforced policy (reports are still logged; 0 for a week = nothing is being blocked) |
 | Code (optional) | Dependabot alerts and PRs, CI state on each default branch |
 
 An AI step (Claude) turns this week's numbers plus the last four snapshots into a short "what changed / what needs

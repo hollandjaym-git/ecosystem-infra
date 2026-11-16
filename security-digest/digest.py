@@ -396,7 +396,7 @@ def csp(cfg):
     a = cfg["apps"].get("fitness")
     if not a or not a.get("csp_report_container"):
         return None
-    s = Section("Fitness CSP (report-only)")
+    s = Section("Fitness CSP (enforced)")
     rc, out, err = run(["docker", "logs", "--since", "168h", a["csp_report_container"]], 60)
     lines = [l for l in (out + err).splitlines() if "[csp-report]" in l]
     counts = Counter()
@@ -408,7 +408,7 @@ def csp(cfg):
             continue
     s.metrics["csp_reports"] = len(lines)
     if not lines:
-        s.info("0 violation reports this week: safe to move the policy from report-only to enforced")
+        s.info("0 violation reports this week: the enforced policy is not blocking anything")
     else:
         s.flag("warn", f"{len(lines)} violation report(s); top: " +
                "; ".join(f"{d} blocked {h} x{n}" for (d, h), n in counts.most_common(4)))
