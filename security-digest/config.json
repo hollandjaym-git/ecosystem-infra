@@ -56,7 +56,7 @@
       "env_file": "/home/deploy/peptides/.env",
       "containers": ["peptides-backend-1", "peptides-frontend-1"],
       "db": { "container": "pg-shared", "user": "digest_ro", "name": "peptides" },
-      "users_table": "users",
+      "users_table": "app_users",
       "auth_probe": "/api/webauthn/register/options",
       "expect_headers": ["strict-transport-security", "x-content-type-options", "content-security-policy"],
       "token_columns": [],
